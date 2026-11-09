@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F5135">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Avaliação · Amigos do Dag</title>
+<style>
+:root{
+  --cal:#EEF2EC; --surface:#FFFFFF; --surface-2:#E2E9E0; --line:#D3DCD0;
+  --ink:#15241B; --ink-2:#55695B;
+  --grama:#1F5135; --grama-2:#2B6B47; --on-grama:#F1F5EF; --grama-soft:#D9E7DC; --grama-ink:#1F5135;
+  --colete:#FF7A1A; --on-colete:#1C1105; --colete-soft:#FFE5CF;
+  --f-num:"DIN Condensed","Avenir Next Condensed","Roboto Condensed","sans-serif-condensed","Arial Narrow",sans-serif;
+  --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r-lg:20px; --r-md:14px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --cal:#0E1813; --surface:#15231B; --surface-2:#1D3026; --line:#2A3E33;
+    --ink:#E5EEE8; --ink-2:#9BB0A2;
+    --grama:#163C27; --grama-2:#3F8B5F; --on-grama:#E5EEE8; --grama-soft:#1E3A2A; --grama-ink:#9CD4B1;
+    --colete-soft:#3E2512;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--cal);color:var(--ink);font:16px/1.45 var(--f-ui);min-height:100dvh}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--colete);outline-offset:2px;border-radius:6px}
+svg{display:inline-block;vertical-align:-3px;flex:none}
+
+.bar{position:sticky;top:0;z-index:10;background:var(--grama);color:var(--on-grama);padding:calc(env(safe-area-inset-top) + 12px) 16px 12px}
+.bar-in{max-width:640px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand{display:block;font-size:13px;font-weight:700;opacity:.8;margin-bottom:2px}
+.bar h1{margin:0;font:700 32px/1 var(--f-num)}
+.bar p{margin:0;font:700 22px/1 var(--f-num);opacity:.9}
+
+main{max-width:640px;margin:0 auto;padding:16px 16px calc(130px + env(safe-area-inset-bottom))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.panel p{margin:0 0 12px;font-size:15px;color:var(--ink-2)}
+.lbl{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin:0 0 8px}
+.txt{width:100%;min-height:52px;border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-size:18px;color:var(--ink);outline:none}
+.txt:focus{border-color:var(--grama-2)}
+
+.filters{display:flex;gap:8px;margin:16px 0 12px;overflow-x:auto;scrollbar-width:none}
+.filters button{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:15px;font-weight:600}
+.filters button span{font:700 17px/1 var(--f-num);color:var(--ink-2);margin-left:4px}
+.filters button.on{background:var(--grama);border-color:var(--grama);color:var(--on-grama)}
+.filters button.on span{color:var(--on-grama);opacity:.8}
+
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.pl{padding:14px 14px 16px;border-top:1px solid var(--line)}
+.pl:first-child{border-top:0}
+.pl-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.pl-h .nm{font-size:19px;font-weight:700}
+.st{font-size:13px;font-weight:600;color:var(--ink-2);display:flex;align-items:center;gap:4px}
+.pl.done .st{color:var(--grama-ink)}
+.row-l{font-size:13px;color:var(--ink-2);margin:10px 0 6px}
+.seg{display:flex;gap:4px;background:var(--surface-2);border-radius:var(--r-md);padding:4px}
+.seg button{flex:1;min-height:44px;border-radius:10px;font-size:14px;line-height:1.15;padding:0 2px;font-weight:600;color:var(--ink-2)}
+.seg button.on{background:var(--grama);color:var(--on-grama)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{min-height:42px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
+.chips button b{font:700 15px/1 var(--f-num);background:var(--colete);color:var(--on-colete);border-radius:999px;padding:3px 6px 1px}
+.chips button.on{border-color:var(--grama-2);background:var(--grama-soft);color:var(--grama-ink)}
+.empty{text-align:center;padding:28px 16px;color:var(--ink-2)}
+
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--grama);color:var(--on-grama);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.foot-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.prog{flex:1;min-width:0}
+.prog span{font-size:14px;opacity:.9}
+.prog-bar{height:8px;border-radius:4px;background:rgb(255 255 255/.18);margin-top:6px;overflow:hidden}
+.prog-bar i{display:block;height:100%;background:var(--colete);border-radius:4px;transition:width .25s}
+.cta{flex:none;min-height:52px;padding:4px 18px 0;border-radius:var(--r-md);background:var(--colete);color:var(--on-colete);font:700 22px/1 var(--f-num)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;border-radius:var(--r-md);font-weight:700;font-size:16px}
+.btn+.btn{margin-top:10px}
+.btn-acc{background:var(--colete);color:var(--on-colete)}
+.btn-out{border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.link{color:var(--grama-ink);font-weight:700;font-size:15px;padding:8px 4px}
+
+.sheet-back{position:fixed;inset:0;z-index:40;background:rgb(0 0 0/.45)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:640px;margin:0 auto;max-height:92dvh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom));animation:up .26s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet h3{margin:0 0 8px;font:700 28px/1.05 var(--f-num)}
+.sheet p{margin:0 0 14px;color:var(--ink-2);font-size:15px}
+.sheet textarea{width:100%;height:180px;border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--cal);padding:10px;font-size:13px;color:var(--ink);resize:none;margin-bottom:14px}
+@keyframes up{from{transform:translateY(100%)}}
+
+.toast{position:fixed;left:50%;z-index:50;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;width:max-content;max-width:calc(100% - 32px);background:#14231A;color:#F1F5EF;border-radius:var(--r-md);padding:12px 16px;font-size:15px;box-shadow:0 8px 24px rgb(0 0 0/.3);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><div><span class="brand">Amigos do Dag</span><h1>Avaliação</h1></div><p id="count"></p></div></header>
+<main>
+  <div class="panel">
+    <p>Marque o nível e a posição de cada jogador. Se ele joga em duas posições, toque primeiro na principal. Deixe em branco quem você não conhece. Suas respostas ficam salvas neste celular até você enviar.</p>
+    <label class="lbl" for="who">Seu nome</label>
+    <input class="txt" id="who" autocomplete="name" autocapitalize="words" placeholder="Quem está avaliando">
+  </div>
+  <div class="filters" id="filters"></div>
+  <ol class="list" id="list"></ol>
+  <p style="text-align:center;margin:18px 0 0"><button class="link" data-a="reset">Apagar minhas respostas</button></p>
+</main>
+<footer class="foot"><div class="foot-in">
+  <div class="prog"><span id="progTxt"></span><div class="prog-bar"><i id="progBar"></i></div></div>
+  <button class="cta" data-a="finish">Enviar avaliação</button>
+</div></footer>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const JOGADORES=['Ailton','Alan','Alan Romão','Alex','Amarildo','Boca','Bruno','Cleomar','Dag','Daniel','Elison','Fabio','Fernando','Gazola','Giovanni','Guina','Igor','Isack','Jefinho','Jonatas','Julio Freitas','Leão','Lucas Chaves','Luisinho','Luiz','Lukinha Lucaneta','Marcelo','Marcos','Matias','Pedrinho','Piolho','Rafael','Renato','Ronaldo','Samuel','Tarlan','Tiago','Tiago Santos','Valtair','Vinicius','Vitor','Wesley','Will','Zéca'];
+const LEVELS=[[1,'Leve'],[2,'Médio'],[3,'Forte'],[4,'Extra forte']];
+const POS=[['G','Goleiro'],['D','Zagueiro'],['L','Lateral'],['M','Meia'],['A','Atacante']];
+const POS_N=Object.fromEntries(POS), LV_N=Object.fromEntries(LEVELS);
+const KEY='amigosdag.avaliacao';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const check='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+let D={who:'',r:{}};
+try{const s=localStorage.getItem(KEY);if(s)D=Object.assign(D,JSON.parse(s));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}};
+let filter='all';
+const get=n=>D.r[n]||{l:0,p:[]};
+const isDone=n=>{const r=get(n);return r.l>0&&r.p.length>0;};
+const touched=n=>{const r=get(n);return r.l>0||r.p.length>0;};
+
+function item(n,i){
+  const r=get(n), done=isDone(n);
+  return `<li class="pl${done?' done':''}" data-i="${i}">
+    <div class="pl-h"><span class="nm">${esc(n)}</span><span class="st">${done?check+'Avaliado':touched(n)?'Falta '+(r.l?'a posição':'o nível'):''}</span></div>
+    <div class="seg" role="group" aria-label="Nível de ${esc(n)}">${LEVELS.map(([v,t])=>`<button class="${r.l===v?'on':''}" data-a="lv" data-i="${i}" data-v="${v}" aria-pressed="${r.l===v}">${t}</button>`).join('')}</div>
+    <div class="row-l">Posição</div>
+    <div class="chips" role="group" aria-label="Posição de ${esc(n)}">${POS.map(([k,t])=>{const o=r.p.indexOf(k);return `<button class="${o>=0?'on':''}" data-a="pos" data-i="${i}" data-v="${k}" aria-pressed="${o>=0}">${t}${o>=0&&r.p.length>1?`<b>${o+1}ª</b>`:''}</button>`;}).join('')}</div>
+  </li>`;
+}
+function visible(){
+  return JOGADORES.map((n,i)=>({n,i})).filter(({n})=>filter==='all'||(filter==='todo'?!isDone(n):isDone(n)));
+}
+function renderList(){
+  const v=visible();
+  $('#list').innerHTML=v.length?v.map(({n,i})=>item(n,i)).join(''):`<li class="empty">${filter==='todo'?'Você avaliou todo mundo. Agora é só enviar.':'Ninguém avaliado ainda.'}</li>`;
+}
+function renderTop(){
+  const done=JOGADORES.filter(isDone).length, todo=JOGADORES.length-done;
+  $('#filters').innerHTML=[['all','Todos',JOGADORES.length],['todo','Faltam',todo],['done','Avaliados',done]]
+    .map(([k,t,c])=>`<button class="${filter===k?'on':''}" data-a="filter" data-v="${k}">${t}<span>${c}</span></button>`).join('');
+  $('#count').textContent=`${done}/${JOGADORES.length}`;
+  $('#progTxt').textContent=`${done} de ${JOGADORES.length} avaliados`;
+  $('#progBar').style.width=(done/JOGADORES.length*100)+'%';
+}
+function renderItem(i){
+  const li=document.querySelector(`.pl[data-i="${i}"]`);
+  if(li)li.outerHTML=item(JOGADORES[i],i);
+  renderTop();
+}
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+function buildText(){
+  const lines=JOGADORES.filter(touched).map(n=>{
+    const r=get(n);
+    return `${n}: ${r.l?LV_N[r.l]:'?'} | ${r.p.length?r.p.map(k=>POS_N[k]).join(', '):'?'}`;
+  });
+  return `📋 Avaliação Amigos do Dag\nAvaliador: ${D.who.trim()}\n(${lines.length} de ${JOGADORES.length} jogadores)\n\n${lines.join('\n')}`;
+}
+function copyText(txt){
+  const ok=()=>toast('Texto copiado. Cole no WhatsApp para quem pediu.');
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(ok,()=>fallback(txt));else fallback(txt);
+  function fallback(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();let r=false;try{r=document.execCommand('copy');}catch(e){}ta.remove();r?ok():toast('Não deu para copiar. Selecione o texto e copie.');}
+}
+function openSheet(){
+  const txt=buildText();
+  $('#sheet').innerHTML=`<div class="sheet-back" data-a="close"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>
+    <h3>Pronto para enviar</h3>
+    <p>Mande este texto para o organizador pelo WhatsApp. Ele cola no app e junta com as outras avaliações.</p>
+    <textarea readonly id="out">${esc(txt)}</textarea>
+    ${navigator.share?'<button class="btn btn-acc" data-a="share">Enviar pelo WhatsApp</button>':''}
+    <button class="btn ${navigator.share?'btn-out':'btn-acc'}" data-a="copy">Copiar texto</button>
+    <button class="btn btn-out" data-a="close">Voltar e revisar</button></div>`;
+}
+
+const A={
+  lv(el){const i=+el.dataset.i,n=JOGADORES[i],r=get(n),v=+el.dataset.v;r.l=r.l===v?0:v;D.r[n]=r;save();renderItem(i);},
+  pos(el){
+    const i=+el.dataset.i,n=JOGADORES[i],r=get(n),k=el.dataset.v,o=r.p.indexOf(k);
+    if(o>=0)r.p.splice(o,1);
+    else if(k==='G'||r.p.includes('G'))r.p=[k];      /* goleiro não acumula com linha */
+    else if(r.p.length>=2)r.p[1]=k;
+    else r.p.push(k);
+    D.r[n]=r;save();renderItem(i);
+  },
+  filter(el){filter=el.dataset.v;renderTop();renderList();},
+  finish(){
+    if(!D.who.trim()){toast('Escreva seu nome antes de enviar.');const w=$('#who');w.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>w.focus(),300);return;}
+    const n=JOGADORES.filter(touched).length;
+    if(!n){toast('Avalie pelo menos um jogador.');return;}
+    openSheet();
+  },
+  share(){const t=buildText();navigator.share({text:t}).catch(e=>{if(e&&e.name!=='AbortError')copyText(t);});},
+  copy(){copyText(buildText());},
+  close(){$('#sheet').innerHTML='';},
+  reset(){if(!confirm('Apagar todas as suas respostas?'))return;D={who:D.who,r:{}};save();renderTop();renderList();toast('Respostas apagadas.');}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a])A[el.dataset.a](el);});
+$('#who').value=D.who;
+$('#who').addEventListener('input',e=>{D.who=e.target.value;save();});
+renderTop();renderList();
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

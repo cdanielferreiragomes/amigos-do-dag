@@ -1,0 +1,1882 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F5135">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Amigos do Dag">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Amigos do Dag</title>
+<style>
+:root{
+  /* 60 — cal (linhas do campo) */
+  --cal:#EEF2EC; --surface:#FFFFFF; --surface-2:#E2E9E0; --line:#D3DCD0;
+  --ink:#15241B; --ink-2:#55695B;
+  /* 30 — gramado */
+  --grama:#1F5135; --grama-2:#2B6B47; --on-grama:#F1F5EF; --grama-soft:#D9E7DC; --grama-ink:#1F5135;
+  /* 10 — colete */
+  --colete:#FF7A1A; --on-colete:#1C1105; --colete-soft:#FFE5CF;
+  --danger:#B42318; --aviso-bg:#FFF1DC; --aviso-line:#EDB15F;
+  --f-num:"DIN Condensed","Avenir Next Condensed","Roboto Condensed","sans-serif-condensed","Arial Narrow",sans-serif;
+  --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r-lg:20px; --r-md:14px; --r-sm:8px; --ok-ink:#1E7A3C;
+  --nav-h:64px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --cal:#0E1813; --surface:#15231B; --surface-2:#1D3026; --line:#2A3E33;
+    --ink:#E5EEE8; --ink-2:#9BB0A2;
+    --grama:#163C27; --grama-2:#3F8B5F; --on-grama:#E5EEE8; --grama-soft:#1E3A2A; --grama-ink:#9CD4B1;
+    --colete-soft:#3E2512; --aviso-bg:#3A2A13; --aviso-line:#8C5D20; --danger:#FF8A7A; --ok-ink:#7BD69A;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--cal);color:var(--ink);font:16px/1.45 var(--f-ui);min-height:100dvh}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--colete);outline-offset:2px;border-radius:6px}
+svg{display:block;flex:none}
+
+/* ---------- barra superior (30) ---------- */
+.bar{position:sticky;top:0;z-index:10;background:var(--grama);color:var(--on-grama);padding:calc(env(safe-area-inset-top) + 12px) 16px 12px}
+.bar-in{max-width:640px;margin:0 auto;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{display:block;font-size:13px;font-weight:700;opacity:.8;margin-bottom:2px}
+.bar h1{margin:0;font:700 32px/1 var(--f-num);letter-spacing:.01em}
+.bar p{margin:0;font-size:14px;opacity:.82;text-align:right}
+.banner{background:var(--danger);color:#fff;font-size:14px;padding:8px 16px;text-align:center}
+
+main{max-width:640px;margin:0 auto;padding:16px 16px calc(var(--nav-h) + 96px + env(safe-area-inset-bottom))}
+
+/* ---------- navegação (30 + 10 na aba ativa) ---------- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--grama);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.nav-in{max-width:640px;margin:0 auto;display:flex}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:var(--nav-h);padding:6px 0 4px;color:var(--on-grama);opacity:.72;font-size:12px;font-weight:600}
+.nav button .ic{padding:4px 16px;border-radius:999px;transition:background .2s}
+.nav button.on{opacity:1}
+.nav button.on .ic{background:var(--colete);color:var(--on-colete)}
+
+/* ---------- campos ---------- */
+.field{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-md);padding:0 6px 0 14px;min-height:52px;color:var(--ink-2)}
+.field:focus-within{border-color:var(--grama-2)}
+.field input{flex:1;min-width:0;border:0;background:none;outline:none;height:50px;font-size:17px;color:var(--ink)}
+.field input::placeholder{color:var(--ink-2)}
+input[type=search]::-webkit-search-cancel-button{display:none}
+.field-x{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;color:var(--ink-2)}
+select{width:100%;min-height:50px;border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--surface);padding:0 12px;font-size:16px;color:var(--ink)}
+.txt{width:100%;min-height:52px;border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-size:18px;color:var(--ink);outline:none}
+.txt:focus{border-color:var(--grama-2)}
+
+/* ---------- textos ---------- */
+.sec{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:24px 2px 8px;width:calc(100% - 4px);text-align:left}
+.sec h2{margin:0;font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.count{font:700 18px/1 var(--f-num);background:var(--surface-2);color:var(--ink-2);border-radius:999px;padding:4px 9px 3px}
+.hint{font-size:14px;color:var(--ink-2);margin:0 2px 10px}
+.hint svg{display:inline-block;vertical-align:-3px}
+.muted{font-size:14px;color:var(--ink-2);margin:6px 0 0}
+.link{color:var(--grama-ink);font-weight:700;font-size:15px;padding:8px 6px;border-radius:8px}
+.lbl{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin:16px 0 8px}
+.lbl:first-child{margin-top:0}
+
+/* ---------- posição e nível ---------- */
+.pos{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;line-height:1.5}
+.pos-G{background:#FCECC2;color:#6E4B00}.pos-D{background:#DCE8FA;color:#1D4C93}
+.pos-M{background:#DCEFDF;color:#1F5A32}.pos-A{background:#FBE0DA;color:#8E2A1A}
+.pos-L{background:#EAE0F7;color:#57308F}
+.pos.alt{background:none;box-shadow:inset 0 0 0 1px currentColor;opacity:.8}
+@media (prefers-color-scheme:dark){
+  .pos-G{background:#3D3112;color:#F2CF73}.pos-D{background:#18294A;color:#9BC0F5}
+  .pos-M{background:#173622;color:#93D5A6}.pos-A{background:#43201A;color:#F4A796}
+  .pos-L{background:#2E2142;color:#CDB3F2}
+}
+.pips{display:inline-flex;gap:3px;align-items:center}
+.pips i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.pips i.on{background:var(--grama-2)}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.who{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;text-align:left}
+.nm{font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.tag{font-size:12px;font-weight:600;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+.tag-here{color:var(--grama-ink);border-color:var(--grama-2)}
+
+/* ---------- busca de chegada ---------- */
+.finder{position:relative}
+.qres{margin-top:8px;background:var(--surface);border:1.5px solid var(--grama-2);border-radius:var(--r-md);overflow:hidden}
+.qres:empty{display:none}
+.qres .note{padding:14px;font-size:15px;color:var(--ink-2)}
+
+/* ---------- placar da fila ---------- */
+.tally{display:flex;gap:0;margin:16px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.tally div{flex:1;padding:12px 8px 10px;text-align:center}
+.tally div+div{border-left:1px solid var(--line)}
+.tally b{display:block;font:700 34px/1 var(--f-num);font-variant-numeric:tabular-nums}
+.tally div:first-child b{color:var(--grama-ink)}
+.tally span{font-size:13px;color:var(--ink-2)}
+
+/* ---------- fila arrastável ---------- */
+.queue{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.qrow{display:flex;align-items:center;gap:4px;min-height:66px;padding:6px 2px 6px 6px;border-top:1px solid var(--line);background:var(--surface);position:relative}
+.qrow:first-child{border-top:0;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.qrow:last-child{border-radius:0 0 var(--r-lg) var(--r-lg)}
+.qrow:only-child{border-radius:var(--r-lg)}
+.jersey{flex:none;width:52px;height:52px;display:grid;place-items:center;border-radius:12px;font:700 34px/1 var(--f-num);color:var(--grama-ink);font-variant-numeric:tabular-nums;padding-top:3px}
+.jersey:active{background:var(--grama-soft)}
+.is-bench .jersey{color:var(--ink-2);opacity:.55}
+.is-bench .nm{color:var(--ink-2)}
+.icon-btn{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;color:var(--ink-2)}
+.icon-btn:active{background:var(--surface-2)}
+.handle{flex:none;width:48px;height:56px;display:grid;place-items:center;color:var(--ink-2);touch-action:none;cursor:grab;border-radius:12px}
+.handle:active{cursor:grabbing;background:var(--surface-2)}
+.queue.sorting{-webkit-user-select:none;user-select:none}
+.queue.sorting .qrow{transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+.queue.sorting .qrow.dragging{transition:none;z-index:5;border-radius:var(--r-md);border-top-color:transparent;box-shadow:0 14px 30px rgb(0 0 0/.22),0 0 0 2px var(--colete)}
+.flash{animation:flash 1.3s ease-out}
+@keyframes flash{0%,30%{background:var(--colete-soft)}100%{background:var(--surface)}}
+
+/* ---------- listas simples ---------- */
+.plain{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.arow{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:8px 12px 8px 16px;border-top:1px solid var(--line);text-align:left}
+.arow:first-child{border-top:0}
+.arow:active{background:var(--surface-2)}
+.arow .go{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:var(--grama-soft);color:var(--grama-ink)}
+.arow.is-in{opacity:.6}
+
+/* ---------- filtros ---------- */
+.filters{display:flex;gap:8px;overflow-x:auto;margin:12px -16px 12px;padding:0 16px 2px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px}
+.filters button span{font:700 17px/1 var(--f-num);color:var(--ink-2)}
+.filters button.on{background:var(--grama);border-color:var(--grama);color:var(--on-grama)}
+.filters button.on span{color:var(--on-grama);opacity:.8}
+
+/* ---------- botões ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;border-radius:var(--r-md);font-weight:700;font-size:16px;padding:0 16px}
+.btn+.btn{margin-top:10px}
+.btn-pri{background:var(--grama);color:var(--on-grama)}
+.btn-out{border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn-danger{border:1.5px solid var(--danger);color:var(--danger);background:var(--surface)}
+.cta{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:60px;margin:16px 0;border-radius:var(--r-lg);background:var(--colete);color:var(--on-colete);font:700 26px/1 var(--f-num);letter-spacing:.01em;padding-top:3px;box-shadow:0 6px 0 rgb(0 0 0/.14)}
+.cta:active{transform:translateY(3px);box-shadow:0 3px 0 rgb(0 0 0/.14)}
+.fab{position:fixed;z-index:9;right:max(16px,calc(50% - 304px));bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:18px;background:var(--colete);color:var(--on-colete);display:grid;place-items:center;box-shadow:0 8px 20px rgb(0 0 0/.25)}
+.fab:active{transform:scale(.95)}
+.row2{display:flex;gap:10px}
+.row2 .btn{margin:0}
+
+/* ---------- segmentos, passo, chave ---------- */
+.seg{display:flex;gap:4px;background:var(--surface-2);border-radius:var(--r-md);padding:4px}
+.seg button{flex:1;min-height:46px;border-radius:10px;font-size:15px;font-weight:600;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0/.15)}
+.seg small{font-size:12px;font-weight:600}
+.stepper{display:flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:var(--r-md);padding:4px;width:max-content}
+.stepper button{width:50px;height:46px;border-radius:10px;display:grid;place-items:center;background:var(--surface);color:var(--ink)}
+.stepper button:disabled{opacity:.4}
+.stepper b{min-width:52px;text-align:center;font:700 32px/1 var(--f-num);padding-top:3px}
+.stepper input{width:70px;text-align:center;border:0;background:none;font:700 34px/1 var(--f-num);color:var(--ink);outline:none;padding-top:3px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;text-align:left;font-size:16px;font-weight:600}
+.switch i{flex:none;width:52px;height:32px;border-radius:999px;background:var(--line);position:relative;transition:background .2s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0/.3);transition:transform .2s}
+.switch[aria-checked=true] i{background:var(--grama-2)}
+.switch[aria-checked=true] i::after{transform:translateX(20px)}
+
+/* ---------- blocos ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.panel+.panel{margin-top:12px}
+.empty{text-align:center;padding:32px 20px;color:var(--ink-2)}
+.empty svg{margin:0 auto 10px;color:var(--grama-2)}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+.empty p{margin:0 auto 18px;max-width:34ch;font-size:15px}
+.empty .btn{max-width:320px;margin-left:auto;margin-right:auto}
+.alert{background:var(--aviso-bg);border:1px solid var(--aviso-line);border-radius:var(--r-md);padding:12px 14px;margin:0 0 12px;font-size:15px}
+.alert p{margin:0}
+.alert p+p{margin-top:6px}
+.note-ok{display:flex;gap:8px;align-items:center;color:var(--grama-ink);font-weight:600;font-size:15px;margin:0 2px 12px}
+.plan-line{font-size:15px;color:var(--ink-2);margin:14px 0 0}
+.plan-line b{color:var(--ink)}
+
+/* ---------- força dos times ---------- */
+.balance{padding:14px 16px}
+.bal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bal-h h2{margin:0;font-size:17px}
+.badge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
+.badge.good{background:var(--grama-soft);color:var(--grama-ink)}
+.badge.ok{background:var(--surface-2);color:var(--ink)}
+.badge.bad{background:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line)}
+.bal-row{display:grid;grid-template-columns:76px 1fr 32px;align-items:center;gap:10px;font-size:14px;margin-top:6px}
+.bal-bar{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.bal-bar i{display:block;height:100%;border-radius:5px}
+.bal-row b{font:700 22px/1 var(--f-num);text-align:right;padding-top:2px}
+
+/* ---------- times ---------- */
+.team{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);margin-top:12px;overflow:hidden}
+.team-h{display:flex;align-items:center;gap:12px;padding:12px 16px 10px}
+.bib{width:24px;height:28px;background:var(--tc);clip-path:polygon(28% 0,72% 0,76% 14%,100% 24%,100% 100%,0 100%,0 24%,24% 14%)}
+.team-h h3{margin:0;flex:1;font:700 28px/1 var(--f-num);padding-top:3px}
+.team-sum{font:700 22px/1 var(--f-num);color:var(--ink-2);padding-top:2px}
+.team-pos{padding:0 16px 10px 52px;font-size:13px;color:var(--ink-2)}
+.team ul,.bench ul{list-style:none;margin:0;padding:0}
+.tli{display:flex;align-items:center;border-top:1px solid var(--line);background:var(--surface);position:relative}
+.tli::after{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--danger);opacity:.22;pointer-events:none}
+.tli.holding::after{width:100%;transition:width 1.5s linear}
+.trow{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.trow{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:46px;padding:6px 4px 6px 16px;text-align:left}
+.thandle{flex:none;width:48px;height:46px;display:grid;place-items:center;color:var(--ink-2);touch-action:none;cursor:grab}
+.thandle:active{cursor:grabbing}
+.tli.lifted{opacity:.3}
+.tli.drop-swap{background:var(--colete-soft);box-shadow:inset 0 0 0 2px var(--colete)}
+.team.drop-into,.bench.drop-into{box-shadow:0 0 0 3px var(--colete);border-color:transparent}
+.tli.ghost{position:fixed;z-index:60;pointer-events:none;margin:0;border:0;border-radius:var(--r-md);box-shadow:0 14px 30px rgb(0 0 0/.25),0 0 0 2px var(--colete);list-style:none}
+body.tdragging{-webkit-user-select:none;user-select:none}
+.trow .nm{flex:1;font-size:16px}
+.trow .pos{min-width:68px;text-align:center}
+.trow.sel{background:var(--colete-soft);box-shadow:inset 4px 0 0 var(--colete)}
+.bench{margin-top:12px;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r-lg);overflow:hidden}
+.bench h3{margin:0;padding:12px 16px 10px;font-size:17px;display:flex;align-items:center}
+
+/* ---------- sorteio enxuto ---------- */
+.topo{display:flex;gap:10px;align-items:stretch;margin:0 0 12px}
+.cfg-bar{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:50px;padding:0 12px 0 14px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:15px;color:var(--ink)}
+.cfg-bar.cfg-open{margin:0 0 10px;min-height:44px}
+.cta.sm{flex:1;min-height:50px;margin:0;font-size:21px;gap:8px;box-shadow:0 4px 0 rgb(0 0 0/.14)}
+.topo .cta.sm{margin:0}
+.bal-min{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:12px 14px;margin-top:12px}
+.bal-min h2{margin:0;flex:1;font-size:16px}
+.bal-min svg,.bal-h svg{flex:none;color:var(--ink-2)}
+button.bal-h{width:100%;text-align:left;gap:8px}
+button.bal-h h2{flex:1}
+.pick-bar{position:sticky;top:calc(var(--bar-h,64px) + 6px);z-index:5;margin:12px 0 0;padding:10px 14px;border-radius:var(--r-md);background:var(--colete-soft);border:1px solid var(--colete);font-size:15px;font-weight:600}
+.jogo-f{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px}
+.jogo-f .hist{margin:0}
+.jogo-f .voltar{margin:0}
+.bench h3 .leg{display:inline-flex;align-items:center;gap:5px;padding:0;margin-left:8px}
+/* ---------- jogo em andamento ---------- */
+.jogo{margin-top:0}
+.jogo-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.jogo-h h2{margin:0;font:700 30px/1 var(--f-num);padding-top:3px}
+.vs{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+.vs span{display:inline-flex;align-items:center;gap:6px}
+.vs i{width:10px;height:10px;border-radius:3px;display:block}
+.vs small{color:var(--ink-2);font-size:14px}
+.jogo .row2{margin-top:12px}
+.btn.lost{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2px var(--tc);gap:8px;padding:0 8px;font-size:15px;line-height:1.15}
+.btn.lost .bib{width:18px;height:21px;flex:none}
+.btn.lost:active{background:var(--surface-2)}
+.hist{font-size:13px;color:var(--ink-2);margin:12px 0 0}
+.jogo .voltar{display:inline-flex;align-items:center;gap:6px;margin:8px 0 -6px -2px;padding:6px 2px;font-size:14px;color:var(--ink-2);font-weight:600}
+.tstate{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.tstate.on{background:var(--grama-soft);color:var(--grama-ink)}
+.bench h3 small{font:500 13px/1 var(--f-ui);color:var(--ink-2);margin-left:4px}
+.tli>.ord{flex:none;margin-left:12px;width:34px;height:34px;border-radius:10px;background:var(--surface-2);color:var(--ink);font:700 18px/1 var(--f-num);display:grid;place-items:center;padding-top:2px}
+.tli>.ord:active{box-shadow:0 0 0 2px var(--colete)}
+.tli.next>.ord{background:var(--grama-soft);color:var(--grama-ink)}
+.tli>.ord+.trow{padding-left:10px}
+.bench .leg{display:flex;align-items:center;gap:6px;margin:0;padding:0 16px 10px;font-size:13px;color:var(--ink-2)}
+.bench .leg i{width:4px;height:16px;border-radius:2px;background:var(--grama-2)}
+.tli.next{box-shadow:inset 5px 0 0 var(--grama-2)}
+.mini{list-style:none;margin:6px 0 0;padding:0}
+.mini li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
+.mini li .nm{flex:1}
+/* ---------- folha inferior ---------- */
+.sheet-back{position:fixed;inset:0;z-index:40;background:rgb(0 0 0/.45);animation:fade .2s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:640px;margin:0 auto;max-height:92dvh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom));animation:up .26s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet h3{margin:0 0 14px;font:700 28px/1.05 var(--f-num);padding-top:2px}
+.sheet .actions{margin-top:18px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(100%)}}
+
+/* ---------- aviso ---------- */
+.toast{position:fixed;left:50%;z-index:50;bottom:calc(var(--nav-h) + 100px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:14px;width:max-content;max-width:calc(100% - 32px);background:#14231A;color:#F1F5EF;border-radius:var(--r-md);padding:12px 12px 12px 16px;font-size:15px;box-shadow:0 8px 24px rgb(0 0 0/.3);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{color:var(--colete);font-weight:800;padding:6px 8px;border-radius:8px}
+
+/* ---------- nível por setor ---------- */
+.setores{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.setores h3{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.setor-row{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:8px;font-size:14px;margin-top:6px}
+.setor-row .vals{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 1px;border-radius:999px;background:var(--surface-2);font:700 18px/1.3 var(--f-num);font-variant-numeric:tabular-nums}
+.chip i{width:10px;height:10px;border-radius:3px;display:block;margin-bottom:2px}
+.chip small{font:600 11px/1 var(--f-ui);color:var(--ink-2)}
+.setor-row.alerta .chip{background:var(--aviso-bg);box-shadow:inset 0 0 0 1px var(--aviso-line)}
+/* ---------- caixa ---------- */
+.subnav{margin:0 0 14px}
+.divl{padding:8px 16px 6px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);background:var(--surface-2);border-top:1px solid var(--line)}
+.saldo{background:var(--grama);color:var(--on-grama);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px}
+.saldo span{font-size:13px;opacity:.8;font-weight:600}
+.saldo b{display:block;font:700 46px/1.05 var(--f-num);margin:4px 0 6px;font-variant-numeric:tabular-nums;padding-top:3px}
+.saldo b.neg{color:#FF9C8F}
+.saldo small{font-size:13px;opacity:.85}
+.quick{display:flex;gap:8px}
+.quick .field{flex:1;min-width:0}
+.quick .btn{width:auto;flex:none}
+.money{font:700 21px/1 var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:2px}
+.money.in{color:var(--ok-ink)}.money.out{color:var(--danger)}
+.mbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}
+.mbar b{font:700 26px/1 var(--f-num);padding-top:3px}
+.mbar button{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.mbar button:disabled{opacity:.35}
+.st-ok{color:var(--ok-ink);font-weight:700}
+.tag-warn{color:var(--danger);border-color:var(--danger)}
+.rep{width:100%;border-collapse:collapse;font-size:15px}
+.rep td{padding:8px 0;border-top:1px solid var(--line);vertical-align:top}
+.rep tr:first-child td{border-top:0}
+.rep td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:12px}
+.rep tr.tot td{font-weight:700}
+.rep tr.sub td:first-child{padding-left:14px;color:var(--ink-2)}
+.txc{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px 8px;margin-top:10px}
+.txc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.txc-w{margin:6px 0 0;font-size:14px;color:var(--danger)}
+.txc-a{display:flex;gap:6px;margin:2px -6px 0}
+/* ---------- presença ---------- */
+/* ---------- relatório impresso ---------- */
+#print{display:none}
+@media print{
+  body{background:#fff}
+  body>*:not(#print){display:none!important}
+  #print{display:block!important;color:#000;font:13px/1.45 Arial,Helvetica,sans-serif}
+  #print h1{font-size:20px;margin:0 0 2px}
+  #print h2{font-size:15px;margin:18px 0 6px}
+  #print p{margin:4px 0}
+  #print .rep{font-size:13px}
+  #print .rep td{border-top:1px solid #ccc;color:#000!important}
+}
+
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><div><span class="brand">Amigos do Dag</span><h1 id="title">Chegada</h1></div><p id="sub"></p></div></header>
+<div class="banner" id="banner" hidden>Este navegador não está salvando os dados. Abra o arquivo direto no Chrome ou Safari, ou use Dados › Exportar antes de fechar.</div>
+<main id="view"></main>
+<nav class="nav" aria-label="Seções"><div class="nav-in" id="nav"></div></nav>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="print"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+
+<script>
+'use strict';
+/* ================= utilitários ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+/* ordem alfabética, com os convidados sempre no fim */
+const byName=(a,b)=>(a.guest?1:0)-(b.guest?1:0)||a.name.localeCompare(b.name,'pt-BR');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const vibrate=ms=>{try{if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}};
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+const dateLabel=()=>{const s=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'short'}).replace('.','');return s.charAt(0).toUpperCase()+s.slice(1);};
+
+const ICON={
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  queue:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M15.5 4.6a3.5 3.5 0 0 1 0 6.8M17.5 14.7c2 .7 3.3 2.4 3.8 5.3"/>',
+  rules:'<circle cx="7" cy="12" r="3.5"/><circle cx="17" cy="12" r="3.5"/><path d="M4 4l16 16"/>',
+  vest:'<path d="M9 3h6l1 2.5 4 2V21H4V7.5l4-2z"/><path d="M9 3a3 3 0 0 0 6 0"/>',
+  data:'<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  grip:'<g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></g>',
+  down:'<path d="M6 9l6 6 6-6"/>', up:'<path d="M6 15l6-6 6 6"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  shuffle:'<path d="M3 7h3.5c2 0 3.2.9 4.3 2.6l2.4 4.8c1.1 1.7 2.3 2.6 4.3 2.6H21M17 13.5l4 3.5-4 3.5M3 17h3.5c1.4 0 2.4-.5 3.2-1.3M13.4 8.3c.8-.8 1.8-1.3 3.1-1.3H21M17 3.5l4 3.5-4 3.5"/>',
+  share:'<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  minus:'<path d="M5 12h14"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+  wallet:'<path d="M4 7.5h15a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 7.5V6a2 2 0 0 1 2-2h10v3.5"/><path d="M16 14h.01" stroke-width="3"/>',
+  left:'<path d="M15 6l-6 6 6 6"/>',
+  right:'<path d="M9 6l6 6-6 6"/>',
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  table:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/>'
+};
+const ic=(n,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+
+const POS=['G','D','L','M','A'];
+const LINE=['D','L','M','A'];
+const POS_NAME={G:'Goleiro',D:'Zagueiro',L:'Lateral',M:'Meia',A:'Atacante'};
+const POS_SHORT={G:'Gol',D:'Zaga',L:'Lateral',M:'Meia',A:'Ataque'};
+const POS_PL={G:['goleiro','goleiros'],D:['zagueiro','zagueiros'],L:['lateral','laterais'],M:['meia','meias'],A:['atacante','atacantes']};
+const plural=(k,c)=>`${c} ${POS_PL[k][c===1?0:1]}`;
+const LEVEL_NAME={1:'Leve',2:'Médio',3:'Forte',4:'Extra forte'};
+const NL=4;
+/* lista da turma: nome, posição, segunda posição, nível */
+const TURMA=[
+  ['Ailton','D',null,1],['Alan','M',null,4],['Alan Romão','M',null,4],['Alex','D',null,2],
+  ['Bruno','A','M',3],['Daniel','M',null,4],['Boca','L',null,2],['Cleomar','L','M',4],
+  ['Dag','L',null,1],['Elison','M',null,4],['Fabio','M',null,4],['Fernando','G',null,4],
+  ['Giovanni','A','M',4],['Guina','L',null,2],['Igor','M',null,4],['Isack','L','D',4],
+  ['Jefinho','M',null,4],['Jonatas','M',null,4],['Leão','D',null,4],['Lukinha Lucaneta','M',null,4],
+  ['Luisinho','L',null,1],['Luiz','G',null,4],['Marcelo','A',null,4],['Marcos','A',null,1],
+  ['Piolho','L',null,2],['Renato','M',null,3],['Ronaldo','A',null,3],['Samuel','A',null,4],
+  ['Tiago','G',null,4],['Tiago Santos','M',null,3],['Valtair','L',null,2],['Vitor','M',null,4],
+  ['Will','A',null,4],['Amarildo','M',null,2],['Zéca','L',null,3],['Julio Freitas','M',null,4],
+  ['Matias','D','L',3],['Tarlan','G',null,4],['Vinicius','M',null,4],['Pedrinho','A',null,4],
+  ['Wesley','L',null,4],['Gazola','A','M',3],['Lucas Chaves','M',null,4],['Rafael','D',null,3]
+];
+/* regras que já vêm com a lista: sep = nunca no mesmo time, tog = sempre juntos */
+const TURMA_REGRAS=[];
+/* sobe quando entra jogador novo na TURMA: quem já usa o app recebe só os que faltam */
+const TURMA_V=7;
+/* ajustes de nível da lista oficial: [nome, nível anterior, nível novo]. Só muda quem ainda está no valor anterior,
+   então uma edição feita à mão no aparelho é preservada. */
+const AJUSTES_NIVEL=[[5,'amarildo',3,2],[5,'bruno',4,3],[5,'gazola',4,2],[5,'renato',4,3],[5,'tiago santos',4,3],
+  [7,'gazola',2,3],[7,'matias',4,3],[7,'alex',null,2]];
+/* escala de níveis passou de 3 para 4 (Extra forte). Quem tem dados antigos é convertido uma vez:
+   Forte(3)->Extra forte(4), Médio(2)->Forte(3), exceto estes quatro que seguem Médio. */
+const NIVEL_V=2, NIVEL_MANTER=new Set(['alex','guina','boca','piolho','valtair']);
+const nivelNovo=(nomeNorm,l)=>l===3?4:(l===2&&!NIVEL_MANTER.has(nomeNorm)?3:l);
+const TEAMS=[{n:'Vermelho',c:'#D33A2C',e:'🔴'},{n:'Azul',c:'#2563C9',e:'🔵'},{n:'Amarelo',c:'#E3AE00',e:'🟡'}];
+const pips=n=>`<span class="pips" role="img" aria-label="Nível ${LEVEL_NAME[n]}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
+const posTag=(k,alt)=>`<span class="pos pos-${k}${alt?' alt':''}">${POS_NAME[k]}</span>`;
+const posTags=p=>posTag(p.pos)+(p.pos2?posTag(p.pos2,true):'');
+const guestTag=p=>p.guest?'<span class="tag">convidado</span>':'';
+/* lista com os convidados separados no fim, sob um divisor */
+function withGuests(list,fn){
+  let h='',shown=false;
+  list.forEach(p=>{if(p.guest&&!shown){shown=true;h+='<div class="divl">Convidados</div>';}h+=fn(p);});
+  return h;
+}
+
+/* ================= estado e armazenamento ================= */
+/* ================= caixa: núcleo ================= */
+const CAT={
+  mens:{n:'Mensalidade',in:true},
+  diaria:{n:'Diária',in:true},
+  entrada:{n:'Outra entrada',in:true},
+  local:{n:'Aluguel do local',in:false},
+  despesa:{n:'Despesa',in:false}
+};
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const r2=x=>Math.round(x*100)/100;
+const brl=v=>(v<0?'−':'')+'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const brlS=v=>(v>0?'+':'')+brl(v);
+const curYM=()=>today().slice(0,7);
+const addYM=(ym,k)=>{let y=+ym.slice(0,4),m=+ym.slice(5,7)+k;while(m>12){m-=12;y++;}while(m<1){m+=12;y--;}return y+'-'+pad(m);};
+const ymLabel=ym=>{const m=MESES[+ym.slice(5,7)-1];return m.charAt(0).toUpperCase()+m.slice(1)+' de '+ym.slice(0,4);};
+const ymShort=ym=>MESES[+ym.slice(5,7)-1].slice(0,3)+'/'+ym.slice(2,4);
+const dShort=d=>d.slice(8,10)+'/'+d.slice(5,7);
+const dLong=d=>d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);
+const dayOffset=k=>{const x=new Date();x.setDate(x.getDate()+k);return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());};
+const parseMoney=v=>{const t=String(v??'').trim().replace(/^r\$\s*/i,'');if(!t)return 0;return t.includes(',')?+t.replace(/\./g,'').replace(',','.'):+t;};
+/* um lançamento: id, data, valor (+ entrada, − saída), categoria, atleta (id e nome guardado), mês de referência da mensalidade, descrição */
+function txClean(x,ids){
+  const d=/^\d{4}-\d\d-\d\d$/.test(x.d)?x.d:today();
+  const cat=CAT[x.cat]?x.cat:((+x.v||0)>=0?'entrada':'despesa');
+  const v=r2(Math.abs(+x.v||0))*(CAT[cat].in?1:-1);
+  const pid=(x.pid!=null&&x.pid!==''&&(!ids||ids.has(+x.pid)))?+x.pid:null;
+  const t={id:+x.id||0,d,v,cat,pid,nome:String(x.nome||''),desc:String(x.desc||'')};
+  if(cat==='mens')t.ref=/^\d{4}-\d\d$/.test(x.ref)?x.ref:d.slice(0,7);
+  return t;
+}
+const blankFin=()=>({cfg:{mens:30,diaria:10,local:0,saldoIni:0},tx:[],nextTx:1});
+
+const KEY='pelada.v2', OLD_KEY='peladaSorteio.v1', TAB_KEY='pelada.tab';
+const blank=()=>({v:2,players:[],rules:[],queue:[],day:'',nTeams:2,size:9,showLevels:true,nextId:1,last:null,seeded:false,evals:{},fin:blankFin(),lastBackup:0});
+function turmaInto(s){
+  const old=s.players||[];
+  s.players=[];s.rules=[];s.queue=[];s.last=null;s.nextId=1;s.seeded=true;s.turmaV=TURMA_V;s.nivelV=NIVEL_V;
+  TURMA.forEach(([name,pos,pos2,level])=>s.players.push({id:s.nextId++,name,pos,pos2,level}));
+  const id=n=>s.players.find(p=>p.name===n).id;
+  TURMA_REGRAS.forEach(([a,b,t])=>s.rules.push({a:id(a),b:id(b),t}));
+  const nid=i=>{const o=old.find(p=>p.id===i);if(!o)return null;const n=s.players.find(p=>norm(p.name)===norm(o.name));return n?n.id:null;};
+  if(s.fin)s.fin.tx.forEach(t=>{if(t.pid!=null)t.pid=nid(t.pid);});
+  return s;
+}
+let storageOk=true;
+
+function sanitize(d){
+  const s=Object.assign(blank(),d||{});
+  s.players=(Array.isArray(s.players)?s.players:[]).filter(p=>p&&p.name).map(p=>{
+    const pos=POS.includes(p.pos)?p.pos:'M';
+    const pos2=(pos!=='G'&&LINE.includes(p.pos2)&&p.pos2!==pos)?p.pos2:null;
+    return {id:+p.id,name:String(p.name),level:[1,2,3,4].includes(+p.level)?+p.level:2,pos,pos2,guest:!!p.guest};
+  });
+  if((s.nivelV||1)<NIVEL_V){
+    s.players.forEach(p=>{p.level=nivelNovo(norm(p.name),p.level);});
+    Object.values(s.evals&&typeof s.evals==='object'?s.evals:{}).forEach(ev=>Object.entries(ev||{}).forEach(([k,v])=>{if(v&&v.l)v.l=nivelNovo(k,v.l);}));
+    s.nivelV=NIVEL_V;
+  }
+  const ids=new Set(s.players.map(p=>p.id));
+  s.rules=(Array.isArray(s.rules)?s.rules:[]).filter(r=>ids.has(r.a)&&ids.has(r.b)&&r.a!==r.b).map(r=>({a:r.a,b:r.b,t:r.t==='tog'?'tog':'sep'}));
+  s.queue=[...new Set((Array.isArray(s.queue)?s.queue:[]).filter(id=>ids.has(id)))];
+  s.nTeams=[2,3].includes(+s.nTeams)?+s.nTeams:2;
+  s.size=Math.min(11,Math.max(4,+s.size||9));
+  s.nextId=Math.max(+s.nextId||1,...s.players.map(p=>p.id+1));
+  if(s.last){const all=[].concat(...(s.last.teams||[]),s.last.bench||[]);if(!all.every(id=>ids.has(id)))s.last=null;}
+  if(s.last&&(!s.last.roles||typeof s.last.roles!=='object'))s.last.roles={};
+  if(s.last){
+    const L=s.last, T=(L.teams||[]).length, pl=Array.isArray(L.play)?L.play.map(Number):[];
+    L.play=pl.length===2&&pl[0]!==pl[1]&&pl.every(t=>t>=0&&t<T)?pl:[0,1];
+    L.jogo=Math.max(1,Math.floor(+L.jogo||1));
+    L.hist=Array.isArray(L.hist)?L.hist.filter(h=>h&&h.p>=0&&h.p<T):[];
+    L.jogos=L.jogos&&typeof L.jogos==='object'&&!Array.isArray(L.jogos)?L.jogos:{};
+    L.hist.forEach(h=>{const v=h.prev;if(v&&!(Array.isArray(v.teams)&&v.teams.length===T&&Array.isArray(v.bench)&&[].concat(...v.teams,v.bench).every(id=>ids.has(id))))delete h.prev;});
+  }
+  if(s.players.length)s.seeded=true;
+  if(!s.evals||typeof s.evals!=='object'||Array.isArray(s.evals))s.evals={};
+  /* caixa */
+  const f=(s.fin&&typeof s.fin==='object')?s.fin:{}, bf=blankFin(), cfg=Object.assign({},bf.cfg,f.cfg||{});
+  Object.keys(bf.cfg).forEach(k=>{cfg[k]=r2(+cfg[k]||0);});
+  const tx=(Array.isArray(f.tx)?f.tx:[]).filter(x=>x&&typeof x==='object').map(x=>txClean(x,ids));
+  let next=Math.max(+f.nextTx||1,...tx.map(t=>t.id+1));
+  tx.forEach(t=>{if(!t.id)t.id=next++;});
+  s.fin={cfg,tx,nextTx:next};
+  s.lastBackup=+s.lastBackup||0;
+  return s;
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw)return sanitize(JSON.parse(raw));
+    const old=localStorage.getItem(OLD_KEY);
+    if(old){
+      const o=JSON.parse(old);
+      const s=sanitize({players:o.players,rules:o.rules,nTeams:o.nTeams,size:o.size,showLevels:o.showLevels!==false,nextId:o.nextId});
+      s.queue=(o.players||[]).filter(p=>p.arr!=null).sort((a,b)=>a.arr-b.arr).map(p=>p.id);
+      return s;
+    }
+  }catch(e){storageOk=false;}
+  return blank();
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));storageOk=true;}catch(e){storageOk=false;}
+  $('#banner').hidden=storageOk;
+}
+let S=load();
+/* primeira vez neste aparelho: já vem com a lista da turma */
+if(!S.seeded&&!S.players.length)turmaInto(S);
+else if((S.turmaV||1)<TURMA_V){
+  const lucas=S.players.find(p=>norm(p.name)==='lucas');
+  if(lucas&&!S.players.some(p=>norm(p.name)==='lukinha lucaneta'))lucas.name='Lukinha Lucaneta';
+  /* Valtair ficou Médio: corrige quem já tinha convertido a escala e ainda o via como Forte */
+  if((S.turmaV||1)===3){const v=S.players.find(p=>norm(p.name)==='valtair');if(v&&v.level===3)v.level=2;}
+  AJUSTES_NIVEL.forEach(([v,n,de,para])=>{if((S.turmaV||1)>=v)return;const p=S.players.find(x=>norm(x.name)===n);if(p&&(de==null||p.level===de))p.level=para;});
+  /* goleiros ficam todos no nível 4 (padronizado: o nível deles não entra nas contas do sorteio) */
+  if((S.turmaV||1)<7)S.players.forEach(p=>{if(p.pos==='G')p.level=4;});
+  const jc=S.players.find(p=>norm(p.name)==='jose carlos');
+  if(jc&&!S.players.some(p=>norm(p.name)==='zeca'))jc.name='Zéca';
+  const have=new Set(S.players.map(p=>norm(p.name)));
+  TURMA.forEach(([name,pos,pos2,level])=>{if(!have.has(norm(name)))S.players.push({id:S.nextId++,name,pos,pos2,level});});
+  S.turmaV=TURMA_V;save();
+}
+
+/* estado da interface */
+let tab='chegada';
+try{const t=localStorage.getItem(TAB_KEY);if(t)tab=t;}catch(e){}
+let search='', pfilter='all', absOpen=true, cfgOpen=false, balOpen=false, pick=null, sheet=null, flashId=null, flashScroll=false, undoFn=null, ruleT='sep', ruleA='', ruleB='';
+const P=id=>S.players.find(p=>p.id===id);
+try{balOpen=localStorage.getItem('pelada.balOpen')==='1';}catch(e){}
+
+/* zera a fila quando muda o dia */
+function checkDay(){
+  const t=today();
+  if(S.day===t)return false;
+  const had=S.day&&(S.queue.length||S.last);
+  if(S.day){S.queue=[];S.last=null;pick=null;}
+  S.day=t;save();
+  if(had)toast('Novo dia: a ordem de chegada foi zerada.');
+  return true;
+}
+
+/* ================= sorteio ================= */
+function plan(){
+  const T=S.nTeams;
+  const q=S.queue.map(P).filter(Boolean);
+  const gk=q.filter(p=>p.pos==='G'), ln=q.filter(p=>p.pos!=='G');
+  const selG=gk.slice(0,T), selL=ln.slice(0,T*(S.size-1));
+  const sel=selG.concat(selL), inSel=new Set(sel);
+  return {q,selG,selL,sel,bench:q.filter(p=>!inSel.has(p))};
+}
+const sigOf=pl=>pl.sel.map(p=>p.id).sort((a,b)=>a-b).join(',');
+
+/* equilíbrio por setor: Defesa (zagueiros + laterais), Meio e Ataque.
+   Peso: o grupo reclama mais do meio, depois da defesa; o ataque pesa pouco. 'aviso' = diferença média que merece alerta. */
+const SETOR=[{k:'D',n:'Defesa',pos:['D','L'],w:80,aviso:1},{k:'M',n:'Meio',pos:['M'],w:100,aviso:.8},{k:'A',n:'Ataque',pos:['A'],w:25,aviso:99}];
+let SETOR_ESCALA=6, COUNT_HARD=300;
+const SETOR_DE=Object.fromEntries(SETOR.flatMap((x,i)=>x.pos.map(p=>[p,i])));
+/* nível médio e quantidade de cada setor por time (goleiro fora) */
+function setorStats(L){
+  return SETOR.map(x=>{
+    const t=L.teams.map(ids=>{const v=ids.filter(id=>x.pos.includes(roleOf(L,id))).map(id=>P(id).level);return {n:v.length,avg:v.length?v.reduce((a,b)=>a+b,0)/v.length:0};});
+    const av=t.map(q=>q.avg);
+    return {x,t,gap:Math.max(...av)-Math.min(...av)};
+  });
+}
+const fmt1=v=>v.toFixed(1).replace('.',',');
+function run(){
+  const T=S.nTeams, pl=plan(), sel=pl.sel, n=sel.length, nG=pl.selG.length;
+  if(n<T*2)return {err:`Marque a chegada de pelo menos ${T*2} jogadores para sortear ${T} times.`};
+  const isG=sel.map(p=>p.pos==='G'), lv=sel.map(p=>p.level);
+  /* quem tem segunda posição pode ser escalado em qualquer uma das duas */
+  const opts=sel.map(p=>p.pos2?[POS.indexOf(p.pos),POS.indexOf(p.pos2)]:[POS.indexOf(p.pos)]);
+  const flex=sel.map((p,i)=>i).filter(i=>opts[i].length>1);
+  const NP=POS.length, NG=NP+NP*NL+NL, NS=SETOR.length, SEC=POS.map(p=>SETOR_DE[p]??-1);
+  const idx=new Map(sel.map((p,i)=>[p.id,i]));
+  const rr=S.rules.filter(r=>idx.has(r.a)&&idx.has(r.b)).map(r=>({i:idx.get(r.a),j:idx.get(r.b),sep:r.t==='sep'}));
+
+  function cost(team,role){
+    const a=new Int16Array(NG*T), sum=new Int16Array(T), ss=new Int16Array(NS*T), sn=new Int16Array(NS*T);
+    for(let i=0;i<n;i++){
+      const t=team[i], pi=role[i], l=lv[i]-1;
+      a[pi*T+t]++;
+      if(!isG[i]){a[(NP+pi*NL+l)*T+t]++;a[(NP+NP*NL+l)*T+t]++;sum[t]+=lv[i];const sc=SEC[pi];if(sc>=0){ss[sc*T+t]+=lv[i];sn[sc*T+t]++;}}
+    }
+    let c=0;
+    for(let g=0;g<NG;g++){
+      let m=0;for(let t=0;t<T;t++)m+=a[g*T+t];m/=T;
+      let d=0;for(let t=0;t<T;t++){const x=a[g*T+t]-m;d+=x*x;}
+      c+=d*(g<NP?40:g<NP+NP*NL?15:8);
+    }
+    let m=0;for(let t=0;t<T;t++)m+=sum[t];m/=T;
+    for(let t=0;t<T;t++){const x=sum[t]-m;c+=x*x*12;}
+    /* nenhum time pode ficar com 2 ou mais jogadores a mais numa mesma posição de linha */
+    if(COUNT_HARD){for(let g=1;g<NP;g++){let mx=-1,mn=99;for(let t=0;t<T;t++){const v=a[g*T+t];if(v>mx)mx=v;if(v<mn)mn=v;}if(mx-mn>1)c+=COUNT_HARD*(mx-mn-1);}}
+    if(SETOR_ESCALA){
+      for(let q=0;q<NS;q++){
+        const av=[];let mm=0;
+        for(let t=0;t<T;t++){const k=sn[q*T+t];av[t]=k?ss[q*T+t]/k:0;mm+=av[t];}
+        mm/=T;let d=0;for(let t=0;t<T;t++){const x=av[t]-mm;d+=x*x;}
+        c+=d*SETOR[q].w*SETOR_ESCALA;
+      }
+    }
+    for(const r of rr){const same=team[r.i]===team[r.j];if(r.sep?same:!same)c+=1000;}
+    return c;
+  }
+  function initial(){
+    const team=new Array(n);
+    shuffle([...Array(nG).keys()]).forEach((i,k)=>{team[i]=k;});
+    const li=shuffle(Array.from({length:n-nG},(_,k)=>k+nG));
+    const order=shuffle([...Array(T).keys()]);
+    const L=li.length, base=Math.floor(L/T), ex=L%T;
+    let p=0;order.forEach((t,k)=>{const m=base+(k<ex?1:0);for(let j=0;j<m;j++)team[li[p++]]=t;});
+    return team;
+  }
+  const results=[];
+  const batch=()=>{for(let r=0;r<160;r++){
+    const team=initial();
+    const role=opts.map(o=>o[Math.floor(Math.random()*o.length)]);
+    let c=cost(team,role);
+    for(let k=0;k<600;k++){
+      if(flex.length&&Math.random()<.25){
+        const i=flex[Math.floor(Math.random()*flex.length)], old=role[i];
+        role[i]=opts[i][0]===old?opts[i][1]:opts[i][0];
+        const c2=cost(team,role);
+        if(c2<=c)c=c2;else role[i]=old;
+        continue;
+      }
+      const i=Math.floor(Math.random()*n), j=Math.floor(Math.random()*n);
+      if(team[i]===team[j]||isG[i]!==isG[j])continue;
+      [team[i],team[j]]=[team[j],team[i]];
+      const c2=cost(team,role);
+      if(c2<=c)c=c2;else[team[i],team[j]]=[team[j],team[i]];
+    }
+    results.push({team,role,c});
+  }};
+  const pick=()=>{const min=Math.min(...results.map(x=>x.c));const pool=results.filter(x=>x.c<=min+12);return pool[Math.floor(Math.random()*pool.length)];};
+  const build=best=>{const teams=Array.from({length:T},()=>[]), roles={};sel.forEach((p,i)=>{teams[best.team[i]].push(p.id);roles[p.id]=POS[best.role[i]];});return {teams,roles};};
+  batch();
+  let {teams,roles}=build(pick());
+  /* se algum setor ainda ficou muito desigual, tenta mais (até 2 rodadas extras) */
+  for(let tent=0;tent<2&&setorStats({teams,roles}).some(q=>q.gap>=q.x.aviso);tent++){batch();({teams,roles}=build(pick()));}
+  return {teams,roles,bench:pl.bench.map(p=>p.id),short:Math.max(0,T*(S.size-1)-pl.selL.length),sig:sigOf(pl),at:Date.now(),play:[0,1],jogo:1,hist:[]};
+}
+const roleOf=(L,id)=>(L.roles&&L.roles[id])||P(id).pos;
+
+function evaluate(L,ess){
+  const w=[], tOf=new Map();
+  L.teams.forEach((ids,t)=>ids.forEach(id=>tOf.set(id,t)));
+  S.rules.forEach(r=>{
+    if(!tOf.has(r.a)||!tOf.has(r.b))return;
+    const same=tOf.get(r.a)===tOf.get(r.b), a=P(r.a).name, b=P(r.b).name;
+    if(r.t==='sep'&&same)w.push(`${a} e ${b} estão no mesmo time, mas a regra pede para separar.`);
+    if(r.t==='tog'&&!same)w.push(`${a} e ${b} estão em times diferentes, mas a regra pede para juntar.`);
+  });
+  L.teams.forEach((ids,t)=>{
+    const g=ids.filter(id=>roleOf(L,id)==='G').length;
+    if(!g)w.push(`${TEAMS[t].n} está sem goleiro.`);
+    if(g>1)w.push(`${TEAMS[t].n} está com ${g} goleiros.`);
+  });
+  if(!ess){
+  LINE.forEach(k=>{
+    const c=L.teams.map(ids=>ids.filter(id=>roleOf(L,id)===k).length);
+    if(Math.max(...c)-Math.min(...c)>1)w.push(`Os ${POS_PL[k][1]} ficaram desiguais entre os times (${c.join(' x ')}).`);
+  });
+  setorStats(L).forEach(q=>{if(q.gap>=q.x.aviso)w.push(S.showLevels?`${q.x.n} desigual: ${q.t.map((v,t)=>`${TEAMS[t].n} ${fmt1(v.avg)}`).join(' × ')}.`:`${q.x.n} ficou desigual entre os times.`);});
+  const sz=L.teams.map(ids=>ids.length);
+  if(Math.max(...sz)-Math.min(...sz)>1)w.push(`Os times estão com tamanhos diferentes: ${L.teams.map((ids,t)=>`${TEAMS[t].n} ${ids.length}`).join(', ')}.`);
+  }
+  if(L.short)w.push(`Faltam ${L.short} jogador${L.short>1?'es':''} de linha para completar os times.`);
+  return w;
+}
+
+/* ================= quem perdeu sai ================= */
+/* L.play = os 2 times em campo. Com 3 times, o que está fora é o próximo a entrar. */
+const playOf=L=>L.play||[0,1];
+const waitOf=L=>L.teams.map((_,t)=>t).find(t=>!playOf(L).includes(t));
+const chegou=id=>{const i=S.queue.indexOf(id);return i<0?1e9:i;};
+const isGk=id=>P(id).pos==='G';
+/* quem chegou depois do sorteio entra no fim da reserva; quem saiu da chegada sai da reserva */
+function syncBench(L){
+  const on=new Set([].concat(...L.teams,L.bench));
+  L.bench=L.bench.filter(id=>S.queue.includes(id)).concat(S.queue.filter(id=>!on.has(id)));
+}
+/* quem da reserva forma o próximo time: o 1º goleiro e os primeiros de linha da fila */
+function proximos(L){
+  const g=L.bench.find(isGk);
+  return new Set((g!=null?[g]:[]).concat(L.bench.filter(id=>!isGk(id)).slice(0,S.size-1)));
+}
+/* o time k perdeu: vai para o fim da reserva (entre eles, na ordem de chegada) e a fila forma o time novo.
+   Sem goleiro na reserva, o goleiro de quem perdeu continua. */
+function trocaPlan(L,k){
+  /* jogos de cada um hoje, contando o que acabou de terminar */
+  const emCampo=new Set([].concat(...playOf(L).map(t=>L.teams[t])));
+  const jg=id=>((L.jogos||{})[id]||0)+(emCampo.has(id)?1:0);
+  const saem=L.teams[k].slice().sort((a,b)=>chegou(a)-chegou(b));
+  const fila=L.bench.concat(saem);
+  const gRes=L.bench.find(isGk), g=gRes!=null?gRes:saem.find(id=>isGk(id)||roleOf(L,id)==='G');
+  /* se a reserva não completa o time, continua quem perdeu e jogou menos; empate, quem chegou primeiro */
+  const resto=saem.filter(id=>!isGk(id)&&id!==g).sort((a,b)=>jg(a)-jg(b)||chegou(a)-chegou(b));
+  const linha=L.bench.filter(id=>!isGk(id)).concat(resto).slice(0,S.size-1);
+  const novo=(g!=null?[g]:[]).concat(linha), usa=new Set(novo);
+  const voltam=saem.filter(id=>usa.has(id));
+  return {k,w:waitOf(L),saem,novo,g,gFica:g!=null&&gRes==null,voltam,jg,emCampo,bench:fila.filter(id=>!usa.has(id))};
+}
+/* quem joga em duas posições fica onde o time novo mais precisa, comparando com o adversário */
+function papeis(ids,alvo,L){
+  const R={};ids.forEach(id=>{R[id]=P(id).pos;});
+  const flex=ids.filter(id=>!isGk(id)&&P(id).pos2).slice(0,10), want={};
+  LINE.forEach(k=>{want[k]=alvo.filter(id=>roleOf(L,id)===k).length;});
+  let best=0,bc=Infinity;
+  for(let m=0;m<1<<flex.length;m++){
+    const cnt={D:0,L:0,M:0,A:0};let mud=0;
+    ids.forEach(id=>{if(isGk(id))return;const f=flex.indexOf(id);if(f>=0&&(m>>f&1)){mud++;cnt[P(id).pos2]++;}else cnt[P(id).pos]++;});
+    const c=LINE.reduce((a,k)=>a+Math.abs(cnt[k]-want[k])*10,0)+mud;
+    if(c<bc){bc=c;best=m;}
+  }
+  flex.forEach((id,f)=>{if(best>>f&1)R[id]=P(id).pos2;});
+  return R;
+}
+function trocar(k){
+  const L=S.last;syncBench(L);
+  const x=trocaPlan(L,k), play=playOf(L), venc=play.find(t=>t!==k);
+  const prev={teams:L.teams.map(t=>t.slice()),bench:L.bench.slice(),play:play.slice(),short:L.short||0,roles:Object.assign({},L.roles),jogos:Object.assign({},L.jogos)};
+  L.jogos=L.jogos||{};x.emCampo.forEach(id=>{L.jogos[id]=(L.jogos[id]||0)+1;});
+  Object.assign(L.roles,papeis(x.novo,L.teams[venc],L));
+  if(x.g!=null)L.roles[x.g]='G';
+  L.teams[k]=x.novo;L.bench=x.bench;
+  if(x.w!=null)L.play=play.map(t=>t===k?x.w:t);
+  L.short=Math.max(0,S.size-1-x.novo.filter(id=>!isGk(id)).length);
+  L.hist.push({j:L.jogo,p:k,prev});
+  L.jogo++;
+  return x;
+}
+/* tirou o time errado: volta ao jogo anterior como estava antes da troca */
+function voltarTroca(){
+  const L=S.last, h=L.hist.pop();
+  Object.assign(L,{teams:h.prev.teams,bench:h.prev.bench,play:h.prev.play,short:h.prev.short,roles:h.prev.roles,jogos:h.prev.jogos||{},jogo:h.j});
+  L.teams=L.teams.map(T=>T.filter(x=>S.queue.includes(x)));
+  syncBench(L);
+}
+/* foi embora: sai da chegada e do sorteio; no time, entra o próximo da fila da reserva, na posição dele.
+   Goleiro que sai: entra o goleiro da reserva; sem goleiro na reserva, o próximo da fila vai para o gol. */
+function embora(id){
+  const L=S.last, box=boxOf(L,id), g=isGk(id);
+  let entrou=null, t=null;
+  if(box==='b')L.bench.splice(L.bench.indexOf(id),1);
+  else{
+    t=+box;const T=L.teams[t], i=T.indexOf(id), r=roleOf(L,id);
+    const linha=L.bench.find(x=>!isGk(x)), gRes=L.bench.find(isGk);
+    entrou=g?(gRes!=null?gRes:linha):linha;
+    if(entrou!=null){
+      L.bench.splice(L.bench.indexOf(entrou),1);T[i]=entrou;
+      L.roles[entrou]=g?'G':P(entrou).pos;
+    }else T.splice(i,1);
+  }
+  S.queue=S.queue.filter(x=>x!==id);
+  L.sig=sigOf(plan());
+  return {entrou,t,g};
+}
+const podeVoltar=L=>{const h=L.hist[L.hist.length-1];return !!(h&&h.prev&&[].concat(...h.prev.teams,h.prev.bench).every(id=>P(id)));};
+
+/* ================= telas ================= */
+const TABS=[
+  {id:'chegada',n:'Chegada',i:'queue'},
+  {id:'times',n:'Sorteio',i:'shuffle'},
+  {id:'jogadores',n:'Jogadores',i:'users'},
+  {id:'caixa',n:'Caixa',i:'wallet'}
+];
+const TITLES={chegada:'Chegada',times:'Sorteio',jogadores:'Jogadores',regras:'Regras',dados:'Dados',caixa:'Caixa'};
+/* Regras e Dados ficam dentro de Jogadores */
+const navOf=t=>['regras','dados'].includes(t)?'jogadores':t;
+const SUBT=[['jogadores','Lista'],['regras','Regras'],['dados','Dados']];
+const subnav=()=>`<div class="seg subnav" role="tablist">${SUBT.map(([k,n])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-a="tab" data-tab="${k}">${n}</button>`).join('')}</div>`;
+const fab=(a,label)=>`<button class="fab" data-a="${a}" aria-label="${label}">${ic('plus',28)}</button>`;
+const searchField=(ph,label)=>`<label class="field">${ic('search',20)}<input id="q" type="search" placeholder="${ph}" value="${esc(search)}" autocomplete="off" autocapitalize="words" enterkeyhint="done" aria-label="${label}">${search?`<button class="field-x" data-a="clearSearch" aria-label="Limpar busca">${ic('x',18)}</button>`:''}</label>`;
+const match=p=>!search.trim()||norm(p.name).includes(norm(search));
+const emptyPlayers=()=>`<div class="empty">${ic('users',40)}<b>Nenhum jogador cadastrado</b><p>Cadastre a turma uma vez. Depois, a cada sábado, é só marcar quem chegou.</p>
+  <button class="btn btn-pri" data-a="newPlayer">${ic('plus',20)}Cadastrar jogador</button>
+  <button class="btn btn-out" data-a="turma">Carregar lista da turma (${TURMA.length} jogadores)</button></div>`;
+
+/* ----- chegada ----- */
+function qRow(p,i,play){
+  return `<li class="qrow${play?'':' is-bench'}${p.id===flashId?' flash':''}" data-id="${p.id}">
+    <button class="jersey" data-a="moveTo" data-id="${p.id}" aria-label="${esc(p.name)} chegou em ${i+1}º. Mover para outra posição">${i+1}</button>
+    <span class="who"><span class="nm">${esc(p.name)}</span><span class="meta">${posTags(p)}${pips(p.level)}${guestTag(p)}${play?'':'<span class="tag">reserva</span>'}</span></span>
+    <button class="icon-btn" data-a="unqueue" data-id="${p.id}" aria-label="Tirar ${esc(p.name)} da fila">${ic('x',20)}</button>
+    <span class="handle" role="button" tabindex="-1" aria-label="Arrastar ${esc(p.name)}">${ic('grip',24)}</span>
+  </li>`;
+}
+function aRow(p){
+  return `<button class="arow" data-a="enqueue" data-id="${p.id}"><span class="who"><span class="nm">${esc(p.name)}</span><span class="meta">${posTags(p)}${pips(p.level)}${guestTag(p)}</span></span><span class="go">${ic('plus',20)}</span></button>`;
+}
+function qResHtml(){
+  if(!search.trim())return '';
+  const found=S.players.filter(match).sort(byName).slice(0,6);
+  if(!found.length)return `<div class="note">Nenhum jogador com esse nome. <button class="link" data-a="newPlayerQ">Cadastrar “${esc(search.trim())}”</button></div>`;
+  return found.map(p=>{
+    const i=S.queue.indexOf(p.id);
+    if(i<0)return aRow(p);
+    return `<div class="arow is-in"><span class="who"><span class="nm">${esc(p.name)}</span><span class="meta">Já chegou, está em ${i+1}º</span></span></div>`;
+  }).join('');
+}
+function vChegada(){
+  if(!S.players.length)return emptyPlayers();
+  const pl=plan(), playing=new Set(pl.sel.map(p=>p.id));
+  const absent=S.players.filter(p=>!S.queue.includes(p.id)).sort(byName);
+  let h=`<div class="finder">${searchField('Quem chegou? Digite o nome','Buscar jogador que chegou')}<div class="qres" id="qres">${qResHtml()}</div></div>`;
+  if(pl.q.length){
+    h+=`<div class="tally">
+        <div><b>${pl.sel.length}</b><span>entram no 1º jogo</span></div>
+        <div><b>${pl.bench.length}</b><span>na reserva</span></div>
+        <div><b>${pl.q.filter(p=>p.pos==='G').length}</b><span>goleiros</span></div></div>
+      <div class="sec"><h2>Ordem de chegada</h2><button class="link" data-a="clearQueue">Zerar ordem</button></div>
+      <p class="hint">Segure ${ic('grip',16)} e arraste para mudar a ordem, ou toque no número.</p>
+      <ol class="queue" id="queue">${pl.q.map((p,i)=>qRow(p,i,playing.has(p.id))).join('')}</ol>`;
+  }else{
+    h+=`<div class="empty">${ic('flag',40)}<b>Ninguém chegou ainda</b><p>Busque o nome acima ou toque em quem chegou na lista abaixo. A ordem zera sozinha a cada novo dia.</p></div>`;
+  }
+  h+=`<button class="sec" data-a="toggleAbs" aria-expanded="${absOpen}"><h2>Ainda não chegaram <span class="count">${absent.length}</span></h2>${ic(absOpen?'up':'down',22)}</button>`;
+  if(absOpen)h+=absent.length?`<div class="plain">${withGuests(absent,aRow)}</div>`:'<p class="hint">Todo mundo da lista já chegou.</p>';
+  return h+fab('newPlayerQ','Cadastrar jogador e marcar chegada');
+}
+
+/* ----- jogadores ----- */
+function listJog(){
+  const list=S.players.filter(p=>(pfilter==='all'||(pfilter==='guest'?!!p.guest:(p.pos===pfilter||p.pos2===pfilter)))&&match(p)).sort(byName);
+  if(!list.length)return `<div class="empty"><b>Nenhum jogador encontrado</b><p>Mude a busca ou o filtro de posição.</p></div>`;
+  return `<div class="plain">${withGuests(list,p=>{
+    const rc=S.rules.filter(r=>r.a===p.id||r.b===p.id).length;
+    return `<button class="arow" data-a="edit" data-id="${p.id}"><span class="who"><span class="nm">${esc(p.name)}</span><span class="meta">${posTags(p)}${pips(p.level)}${guestTag(p)}${S.queue.includes(p.id)?'<span class="tag tag-here">chegou</span>':''}${rc?`<span class="tag">${rc} regra${rc>1?'s':''}</span>`:''}</span></span>${ic('edit',20)}</button>`;
+  })}</div>`;
+}
+function vJogadores(){
+  if(!S.players.length)return subnav()+emptyPlayers()+fab('newPlayer','Cadastrar jogador');
+  const cnt=k=>k==='all'?S.players.length:k==='guest'?S.players.filter(p=>p.guest).length:S.players.filter(p=>p.pos===k||p.pos2===k).length;
+  return `${subnav()}${searchField('Buscar jogador','Buscar jogador')}
+    <div class="filters" role="tablist" aria-label="Filtrar por posição">${['all',...POS,'guest'].map(k=>`<button role="tab" aria-selected="${pfilter===k}" class="${pfilter===k?'on':''}" data-a="pfilter" data-v="${k}">${k==='all'?'Todos':k==='guest'?'Convidados':POS_PL[k][1].replace(/^./,c=>c.toUpperCase())} <span>${cnt(k)}</span></button>`).join('')}</div>
+    <div id="list">${listJog()}</div>${fab('newPlayer','Cadastrar jogador')}`;
+}
+
+/* ----- regras ----- */
+function vRegras(){
+  if(S.players.length<2)return subnav()+emptyPlayers();
+  const opts=sel=>S.players.slice().sort(byName).map(p=>`<option value="${p.id}"${String(p.id)===String(sel)?' selected':''}>${esc(p.name)}</option>`).join('');
+  const rules=S.rules.map((r,i)=>{
+    const a=P(r.a),b=P(r.b);
+    return `<div class="arow"><span class="who"><span class="nm">${esc(a.name)} e ${esc(b.name)}</span><span class="meta">${r.t==='sep'?'Nunca no mesmo time':'Sempre no mesmo time'}</span></span><button class="icon-btn" data-a="delRule" data-i="${i}" aria-label="Remover regra de ${esc(a.name)} e ${esc(b.name)}">${ic('x',20)}</button></div>`;
+  }).join('');
+  return `${subnav()}<p class="hint" style="margin-top:0">O sorteio sempre tenta cumprir estas regras antes de equilibrar posições e níveis.</p>
+    ${rules?`<div class="plain">${rules}</div>`:'<div class="plain"><div class="empty" style="padding:20px"><b>Nenhuma regra ainda</b><p style="margin-bottom:0">Use abaixo para impedir que dois jogadores caiam no mesmo time.</p></div></div>'}
+    <div class="sec"><h2>Nova regra</h2></div>
+    <div class="panel">
+      <span class="lbl">Estes dois jogadores</span>
+      <div class="seg"><button class="${ruleT==='sep'?'on':''}" data-a="ruleT" data-v="sep">Nunca juntos</button><button class="${ruleT==='tog'?'on':''}" data-a="ruleT" data-v="tog">Sempre juntos</button></div>
+      <label class="lbl" for="ra">Primeiro jogador</label><select id="ra"><option value="">Escolha…</option>${opts(ruleA)}</select>
+      <label class="lbl" for="rb">Segundo jogador</label><select id="rb"><option value="">Escolha…</option>${opts(ruleB)}</select>
+      <div class="actions" style="margin-top:16px"><button class="btn btn-pri" data-a="addRule">Adicionar regra</button></div>
+    </div>`;
+}
+
+/* ----- times ----- */
+/* jogadores do time com a posição em que foram escalados */
+const sortTeam=(ids,L)=>ids.map(id=>({p:P(id),r:roleOf(L,id)})).sort((a,b)=>POS.indexOf(a.r)-POS.indexOf(b.r)||b.p.level-a.p.level||byName(a.p,b.p));
+function balanceHtml(L){
+  const sums=L.teams.map(ids=>ids.reduce((s,id)=>s+(roleOf(L,id)==='G'?0:P(id).level),0));
+  const max=Math.max(...sums,1), diff=max-Math.min(...sums);
+  const [lbl,cls]=diff<=2?['Muito equilibrado','good']:diff<=4?['Equilibrado','ok']:['Desequilibrado','bad'];
+  const alerta=S.showLevels&&setorStats(L).some(q=>q.gap>=q.x.aviso);
+  if(!balOpen)return `<button class="panel balance bal-min" data-a="bal" aria-expanded="false"><h2>Força dos times</h2>${alerta?'<span class="badge bad">Setor desigual</span>':''}<span class="badge ${cls}">${lbl}</span>${ic('down',20)}</button>`;
+  return `<div class="panel balance"><button class="bal-h" data-a="bal" aria-expanded="true"><h2>Força dos times</h2><span class="badge ${cls}">${lbl}</span>${ic('up',20)}</button>
+    ${S.showLevels?L.teams.map((_,t)=>`<div class="bal-row"><span>${TEAMS[t].n}</span><div class="bal-bar"><i style="width:${(sums[t]/max*100).toFixed(0)}%;background:${TEAMS[t].c}"></i></div><b>${sums[t]}</b></div>`).join(''):''}
+    ${S.showLevels?`<div class="setores">${setorStats(L).map(q=>`<div class="setor-row${q.gap>=q.x.aviso?' alerta':''}"><span>${q.x.n}</span><div class="vals">${q.t.map((v,t)=>`<span class="chip" aria-label="${TEAMS[t].n}: média ${v.n?fmt1(v.avg):'sem jogadores'}, ${v.n} jogadores"><i style="background:${TEAMS[t].c}"></i>${v.n?fmt1(v.avg):'—'}<small>(${v.n})</small></span>`).join('')}</div></div>`).join('')}</div>`:''}</div>`;
+}
+function trow({p,r},o={}){
+  return `<li class="tli${p.id===flashId?' flash':''}${o.next?' next':''}" data-id="${p.id}">${o.ord?`<button class="ord" data-a="bmove" data-id="${p.id}" aria-label="${esc(p.name)} está em ${o.ord}º na reserva. Mudar a ordem">${o.ord}</button>`:''}<button class="trow${pick===p.id?' sel':''}" data-a="pick" data-id="${p.id}" aria-pressed="${pick===p.id}">${posTag(r||p.pos)}<span class="nm">${esc(p.name)}</span>${S.showLevels?pips(p.level):''}</button><span class="thandle" role="button" tabindex="-1" aria-label="Arrastar ${esc(p.name)} para outro time">${ic('grip',22)}</span></li>`;
+}
+function jogoHtml(L){
+  const play=playOf(L), w=waitOf(L), pode=w!=null||L.bench.length>0;
+  return `<div class="panel jogo"><div class="jogo-h"><h2>${L.jogo}º jogo</h2><span class="vs">${play.map(t=>`<span><i style="background:${TEAMS[t].c}"></i>${TEAMS[t].n}</span>`).join('<small>×</small>')}</span></div>
+    ${pode?`<div class="row2">${play.map(t=>`<button class="btn lost" style="--tc:${TEAMS[t].c}" data-a="perdeu" data-v="${t}"><span class="bib" aria-hidden="true"></span>${TEAMS[t].n} perdeu</button>`).join('')}</div>`
+    :'<p class="muted">Sem reserva: os times continuam.</p>'}
+    ${L.hist.length?`<div class="jogo-f"><span class="hist">${L.hist.slice(-3).map(h=>`${h.j}º jogo: ${TEAMS[h.p].n} perdeu`).join(' · ')}</span>${podeVoltar(L)?`<button class="link voltar" data-a="voltar">${ic('undo',16)}Voltar ao ${L.hist[L.hist.length-1].j}º jogo</button>`:''}</div>`:''}</div>`;
+}
+function resultHtml(){
+  const L=S.last;
+  const w=evaluate(L,L.jogo>1);
+  const stale=L.sig!==sigOf(plan());
+  const wt=waitOf(L), nx=proximos(L);
+  let h=jogoHtml(L)+balanceHtml(L);
+  if(stale&&L.jogo===1)h+=`<div class="alert" style="margin-top:12px"><p>A chegada mudou depois do sorteio.</p></div>`;
+  if(w.length)h+=`<div class="alert" style="margin-top:12px">${w.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`;
+  if(pick)h+=`<p class="pick-bar">Toque em quem vai trocar com ${esc(P(pick).name)}.</p>`;
+  h+=L.teams.map((ids,t)=>{
+    const ps=sortTeam(ids,L);
+    const sum=ps.reduce((s,x)=>s+(x.r==='G'?0:x.p.level),0);
+    return `<section class="team" data-box="${t}" style="--tc:${TEAMS[t].c}"><div class="team-h"><span class="bib" aria-hidden="true"></span><h3>${TEAMS[t].n}</h3>${wt!=null?`<span class="tstate${t===wt?'':' on'}">${t===wt?'Próximo':'Em campo'}</span>`:''}${S.showLevels?`<span class="team-sum" aria-label="Soma de níveis ${sum}">${sum}</span>`:''}</div>
+<ul>${ps.map(trow).join('')}</ul></section>`;
+  }).join('');
+  h+=`<section class="bench" data-box="b"><h3>Reserva${nx.size?'<small class="leg"><i></i>entram no próximo</small>':''}</h3>${L.bench.length?`<ul>${L.bench.map((id,i)=>trow({p:P(id),r:roleOf(L,id)},{ord:i+1,next:nx.has(id)})).join('')}</ul>`:'<p class="hint" style="padding:0 16px 8px">Ninguém na reserva.</p>'}</section>`;
+  h+=`<div class="row2" style="margin-top:16px"><button class="btn btn-pri" data-a="share">${ic('share',20)}Enviar times</button><button class="btn btn-out" data-a="copy">${ic('copy',20)}Copiar</button></div>`;
+  return h;
+}
+function vTimes(){
+  const pl=plan();
+  const cta=sm=>`<button class="cta${sm?' sm':''}" data-a="draw">${ic('shuffle',sm?22:26)}${S.last?'Sortear de novo':'Sortear times'}</button>`;
+  if(S.last&&!cfgOpen){
+    syncBench(S.last);
+    return `<div class="topo"><button class="cfg-bar" data-a="cfg" aria-expanded="false" aria-label="Ajustes do sorteio">${S.nTeams} times · ${S.size}${ic('down',18)}</button>${cta(true)}</div>`+resultHtml();
+  }
+  let h=`${S.last?`<button class="cfg-bar cfg-open" data-a="cfg" aria-expanded="true">Ajustes${ic('up',18)}</button>`:''}<div class="panel">
+    <span class="lbl">Quantos times</span>
+    <div class="seg">${[2,3].map(n=>`<button class="${S.nTeams===n?'on':''}" data-a="setT" data-v="${n}">${n} times</button>`).join('')}</div>
+    <span class="lbl">Jogadores por time (com goleiro)</span>
+    <div class="stepper"><button data-a="sz" data-v="-1" aria-label="Menos um jogador"${S.size<=4?' disabled':''}>${ic('minus',20)}</button><b aria-live="polite">${S.size}</b><button data-a="sz" data-v="1" aria-label="Mais um jogador"${S.size>=11?' disabled':''}>${ic('plus',20)}</button></div>
+    <div style="height:8px"></div>
+    <button class="switch" role="switch" aria-checked="${S.showLevels}" data-a="lv">Mostrar níveis no resultado<i></i></button>
+    <p class="plan-line">${pl.q.length?`Entram <b>${pl.sel.length}</b> (${pl.selG.length} no gol)${pl.bench.length?` · <b>${pl.bench.length}</b> na reserva`:''}`:'Ninguém marcado na chegada ainda.'}</p>
+  </div>
+  ${cta(false)}`;
+  if(S.last){syncBench(S.last);h+=resultHtml();}
+  else if(!pl.q.length)h+=`<div class="empty">${ic('vest',40)}<b>Marque quem chegou primeiro</b><p>O sorteio usa a ordem da aba Chegada para decidir quem entra no 1º jogo.</p><button class="btn btn-out" data-a="tab" data-tab="chegada">Ir para Chegada</button></div>`;
+  return h;
+}
+function teamsText(){
+  const L=S.last;
+  const out=L.teams.map((ids,t)=>{
+    const ps=sortTeam(ids,L);
+    const lines=POS.map(k=>{const n=ps.filter(x=>x.r===k).map(x=>x.p.name);return n.length?`${POS_PL[k][n.length===1?0:1].replace(/^./,c=>c.toUpperCase())}: ${n.join(', ')}`:null;}).filter(Boolean);
+    return `${TEAMS[t].e} *${TEAMS[t].n}*${waitOf(L)===t?' (próximo)':''}\n${lines.join('\n')}`;
+  });
+  if(L.bench.length)out.push(`🪑 *Reserva, na ordem*\n${L.bench.map(id=>P(id).name).join(', ')}`);
+  return `⚽ Amigos do Dag, times de ${dateLabel().toLowerCase()}${L.jogo>1?`, ${L.jogo}º jogo`:''}\n\n${out.join('\n\n')}`;
+}
+
+/* ----- dados ----- */
+/* ----- nivelamento: junta as avaliações recebidas pelo WhatsApp ----- */
+const LV_WORD={leve:1,medio:2,forte:3,'extra forte':4};
+const POS_WORD={goleiro:'G',gol:'G',zagueiro:'D',zaga:'D',lateral:'L',meia:'M',meio:'M',atacante:'A',ataque:'A'};
+function parseEval(text){
+  const m=text.match(/Avaliador:\s*([^\n\r]+)/i);
+  if(!m)return {err:'Não achei a linha "Avaliador:" no texto. Copie a mensagem inteira que a pessoa mandou.'};
+  const who=m[1].trim(), byName=new Map(S.players.map(p=>[norm(p.name),p])), votes={}, unknown=[];
+  text.split(/\r?\n/).forEach(line=>{
+    const x=line.match(/^\s*(?:\[[^\]]*\][^:]*:\s*)?([^:|]+?):\s*([^|]*)\|\s*(.*)$/);
+    if(!x)return;
+    const name=norm(x[1]);
+    if(!byName.has(name)){unknown.push(x[1].trim());return;}
+    const l=LV_WORD[norm(x[2])]||0;
+    const p=x[3].split(',').map(s=>POS_WORD[norm(s)]).filter(Boolean).filter((k,i,a)=>a.indexOf(k)===i).slice(0,2);
+    if(l||p.length)votes[name]={l,p};
+  });
+  if(!Object.keys(votes).length)return {err:'Não encontrei nenhum jogador avaliado nesse texto.'};
+  return {who,votes,unknown};
+}
+function evalResult(){
+  const evs=Object.values(S.evals||{});
+  return S.players.map(p=>{
+    const votes=evs.map(e=>e[norm(p.name)]).filter(Boolean);
+    if(!votes.length)return null;
+    const lv=votes.filter(v=>v.l).map(v=>v.l);
+    const mean=lv.length?lv.reduce((a,b)=>a+b,0)/lv.length:null;
+    const level=mean?Math.min(4,Math.max(1,Math.round(mean))):p.level;
+    const score={},ment={};let pv=0;
+    votes.forEach(v=>{if(v.p.length){pv++;v.p.forEach((k,i)=>{score[k]=(score[k]||0)+(i?1:2);ment[k]=(ment[k]||0)+1;});}});
+    let pos=p.pos,pos2=p.pos2;
+    if(pv){
+      /* principal vale 2 pontos, segunda posição vale 1 */
+      const rk=Object.keys(score).sort((a,b)=>score[b]-score[a]||ment[b]-ment[a]||POS.indexOf(a)-POS.indexOf(b));
+      pos=rk[0];pos2=null;
+      if(pos!=='G')pos2=rk.slice(1).find(k=>k!=='G'&&ment[k]*2>=pv)||null;
+    }
+    return {p,n:votes.length,nl:lv.length,mean,level,pos,pos2,changed:level!==p.level||pos!==p.pos||pos2!==p.pos2};
+  }).filter(Boolean);
+}
+const posTxt=(a,b)=>POS_NAME[a]+(b?` e ${POS_NAME[b]}`:'');
+let nivelAll=false;
+/* publicado num link (e não aberto como arquivo) */
+const online=/^https?:$/.test(location.protocol);
+function vNivel(){
+  const evs=Object.entries(S.evals||{});
+  let h=`<div class="sec"><h2>Nivelamento da turma</h2></div>
+  <div class="panel"><p style="margin:0">${online?'Mande o link da avaliação':'Mande o arquivo <b>avaliacao.html</b>'} para quem vai avaliar. Quando a resposta chegar no WhatsApp, copie a mensagem inteira e cole aqui. O app tira a média dos níveis e a maioria das posições.</p>
+    <div style="height:14px"></div>${online?'<button class="btn btn-out" data-a="evalLink">Enviar link da avaliação</button>':''}<button class="btn btn-pri" data-a="evalPaste">Colar avaliação recebida</button>`;
+  if(evs.length){
+    h+=`<span class="lbl">Avaliações recebidas</span><div class="plain">${evs.map(([w,v])=>`<div class="arow"><span class="who"><span class="nm">${esc(w)}</span><span class="meta">${Object.keys(v).length} jogadores avaliados</span></span><button class="icon-btn" data-a="evalDel" data-w="${esc(w)}" aria-label="Remover avaliação de ${esc(w)}">${ic('x',20)}</button></div>`).join('')}</div>`;
+  }
+  h+='</div>';
+  if(!evs.length)return h;
+  const res=evalResult(), ch=res.filter(r=>r.changed), show=nivelAll?res:ch;
+  h+=`<div class="sec"><h2>Resultado <span class="count">${ch.length}</span></h2><button class="link" data-a="nivelAll">${nivelAll?'Só mudanças':'Ver todos'}</button></div>`;
+  h+=show.length?`<div class="plain">${show.map(r=>{
+    const lvTxt=r.level!==r.p.level?`${LEVEL_NAME[r.p.level]} → <b>${LEVEL_NAME[r.level]}</b>`:LEVEL_NAME[r.level];
+    const psTxt=(r.pos!==r.p.pos||r.pos2!==r.p.pos2)?`${posTxt(r.p.pos,r.p.pos2)} → <b>${posTxt(r.pos,r.pos2)}</b>`:posTxt(r.pos,r.pos2);
+    return `<div class="arow" style="cursor:default"><span class="who"><span class="nm">${esc(r.p.name)}</span>
+      <span class="meta">Nível: ${lvTxt}${r.mean?`, média ${r.mean.toFixed(1).replace('.',',')} de ${r.nl} voto${r.nl>1?'s':''}`:''}</span>
+      <span class="meta">Posição: ${psTxt}</span></span></div>`;}).join('')}</div>`
+    :'<p class="hint">As avaliações batem com o cadastro atual. Nada para mudar.</p>';
+  if(ch.length)h+=`<div style="height:12px"></div><button class="btn btn-pri" data-a="evalApply">Aplicar mudanças em ${ch.length} jogador${ch.length>1?'es':''}</button>`;
+  return h;
+}
+
+function vDados(){
+  return `${subnav()}<div class="panel"><p style="margin:0">Os jogadores, as regras, a chegada do dia e o caixa ficam salvos neste aparelho, sem precisar de internet. ${storageOk?'':'<b>Atenção: este navegador não está salvando.</b>'}</p>
+    <p class="muted">Para usar em outro celular ou tablet, exporte aqui e importe no outro aparelho.</p></div>
+  <div class="panel"><button class="btn btn-pri" data-a="export">Exportar dados</button><button class="btn btn-out" data-a="import">Importar dados</button></div>
+  ${vNivel()}
+  <div class="sec"><h2>Para testar</h2></div>
+  <div class="panel"><button class="btn btn-out" data-a="turma">Carregar lista da turma (${TURMA.length} jogadores)</button><button class="btn btn-out" data-a="simQ">Simular chegada de um sábado</button></div>
+  <div class="sec"><h2>Começar do zero</h2></div>
+  <div class="panel"><button class="btn btn-danger" data-a="wipe">Apagar jogadores, regras e chegada</button></div>`;
+}
+
+/* ----- caixa ----- */
+let cxView='mens', cxMonth='', qtx='';
+const F=()=>S.fin;
+const cxM=()=>cxMonth||(cxMonth=curYM());
+const txName=t=>(t.pid!=null&&P(t.pid))?P(t.pid).name:(t.nome||'');
+const txTitle=t=>(t.cat==='mens'||t.cat==='diaria')?(txName(t)||CAT[t.cat].n):(t.desc||txName(t)||CAT[t.cat].n);
+const saldoAt=until=>r2(F().cfg.saldoIni+F().tx.reduce((s,t)=>(!until||t.d<=until)?s+t.v:s,0));
+const isPaid=(pid,ym)=>F().tx.some(t=>t.cat==='mens'&&t.pid===pid&&t.ref===ym);
+function addTx(x){
+  if(x.pid!=null&&P(x.pid))x=Object.assign({},x,{nome:P(x.pid).name});
+  F().tx.push(txClean(Object.assign({},x,{id:F().nextTx++})));
+}
+function monthTx(ym){return F().tx.filter(t=>t.d.startsWith(ym)).sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id);}
+function monthSum(ym){
+  const tx=monthTx(ym), s={mens:0,diaria:0,entrada:0,local:0,despesa:0,n:{mens:0,diaria:0,entrada:0,local:0,despesa:0},tx};
+  tx.forEach(t=>{s[t.cat]=r2(s[t.cat]+t.v);s.n[t.cat]++;});
+  s.ent=r2(s.mens+s.diaria+s.entrada);s.sai=r2(s.local+s.despesa);s.res=r2(s.ent+s.sai);
+  s.ini=saldoAt(addYM(ym,-1)+'-31');s.fim=saldoAt(ym+'-31');
+  return s;
+}
+/* mensalidade do mês (pelo mês de referência) de cada atleta da turma */
+function mensOf(ym){
+  return S.players.filter(p=>!p.guest).sort(byName).map(p=>({p,t:F().tx.find(x=>x.cat==='mens'&&x.pid===p.id&&x.ref===ym)}));
+}
+const despesas=s=>{const e={};s.tx.filter(t=>t.cat==='despesa').forEach(t=>{const k=t.desc||'Despesa';e[k]=r2((e[k]||0)+t.v);});return Object.entries(e);};
+
+/* lançamento por texto, como no Toki: entende atleta, mês, valor e tipo, tudo offline */
+const MES_N={janeiro:1,jan:1,fevereiro:2,fev:2,marco:3,mar:3,abril:4,abr:4,maio:5,junho:6,jun:6,julho:7,jul:7,agosto:8,ago:8,setembro:9,set:9,outubro:10,out:10,novembro:11,nov:11,dezembro:12};
+const MES_RE=/\b(janeiro|jan|fevereiro|fev|marco|mar|abril|abr|maio|junho|jun|julho|jul|agosto|ago|setembro|set|outubro|out|novembro|nov|dezembro)\b(?:\s+(?:de\s+)?(20\d\d))?/g;
+const NUM_W={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6};
+const KW_OUT=/\b(paguei|pagamos|gastei|gastamos|comprei|compramos|despesa|saida)\b/;
+const KW_LOCAL=/\b(quadra|areia|aluguel|local|campo|arena)\b/;
+const KW_IN=/\b(recebi|recebemos|entrada|doacao|patrocinio|rifa|vaquinha)\b/;
+const NOT_NAME=new Set('bola bolas colete coletes agua gelo cone cones rede apito camisa camisas material uniforme churrasco festa rifa bolo'.split(' '));
+const STOP=new Set('paguei pagamos pagou pagaram paga gastei gastamos comprei compramos compra recebi recebemos de da do das dos a o as os um uma e com pra para pro no na em reais real r$ hoje ontem anteontem despesa saida entrada mensalidade mensalidades diaria diarias dia mes meses valor'.split(' '));
+const reEsc=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,j)=>j);for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];}
+function descOf(raw,found){
+  const names=new Set(found.flatMap(p=>norm(p.name).split(/\s+/)));
+  const w=raw.replace(/[()!?;:]/g,' ').split(/\s+/).filter(x=>{const n=norm(x).replace(/[.,]+$/,'');return n&&!STOP.has(n)&&!names.has(n)&&!MES_N[n]&&!/^(r\$)?\d/.test(n)&&!/^\d{1,2}\/\d{1,2}/.test(n);});
+  const r=w.join(' ').trim();
+  return r?r.charAt(0).toUpperCase()+r.slice(1):'';
+}
+function parseTx(text){
+  const raw=String(text||'').trim();
+  if(!raw)return {err:'Escreva o lançamento. Ex.: Daniel pagou mensalidade.'};
+  const cfg=F().cfg, now=today(), cy=+now.slice(0,4), cm=+now.slice(5,7);
+  let t=' '+norm(raw).replace(/[()!?;:]/g,' ').replace(/\s+/g,' ')+' ', m;
+  /* atletas: nome inteiro (do mais longo para o mais curto); se nenhum, nome parecido */
+  const found=[];
+  S.players.slice().sort((a,b)=>norm(b.name).length-norm(a.name).length).forEach(p=>{
+    const n=norm(p.name).replace(/[()]/g,' ').replace(/\s+/g,' ').trim();
+    const re=new RegExp('(^|[^a-z0-9])'+reEsc(n)+'(?=[^a-z0-9]|$)');
+    if(n&&re.test(t)){found.push(p);t=t.replace(re,'$1 ');}
+  });
+  /* nome parecido só quando o texto não é claramente uma despesa/entrada ('paguei bola 120' não é o Boca) */
+  if(!found.length&&!KW_OUT.test(t)&&!KW_IN.test(t))t.split(' ').filter(w=>w.length>=4&&!STOP.has(w)&&!NOT_NAME.has(w)&&!MES_N[w]&&!/\d/.test(w)&&!KW_LOCAL.test(' '+w+' ')).forEach(w=>{
+    const c=S.players.filter(p=>{const n=norm(p.name);return !n.includes(' ')&&lev(w,n)<=(n.length>=7?2:1);});
+    if(c.length===1&&!found.includes(c[0])){found.push(c[0]);t=t.replace(new RegExp('\\b'+reEsc(w)+'\\b'),' ');}
+  });
+  /* data */
+  let d=now;
+  if(/\banteontem\b/.test(t)){d=dayOffset(-2);t=t.replace(/\banteontem\b/,' ');}
+  else if(/\bontem\b/.test(t)){d=dayOffset(-1);t=t.replace(/\bontem\b/,' ');}
+  if((m=t.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/))){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):String(cy);d=y+'-'+pad(+m[2])+'-'+pad(+m[1]);t=t.replace(m[0],' ');}
+  else if((m=t.match(/\bdia (\d{1,2})\b/))){d=now.slice(0,8)+pad(+m[1]);t=t.replace(m[0],' ');}
+  /* meses */
+  let nMeses=0;
+  if((m=t.match(/\b(\d|um|uma|dois|duas|tres|quatro|cinco|seis) mes(?:es)?\b/))){nMeses=+m[1]||NUM_W[m[1]]||0;t=t.replace(m[0],' mensalidade ');}
+  const refs=[];
+  if(/\b(mes que vem|proximo mes)\b/.test(t)){refs.push(addYM(curYM(),1));t=t.replace(/\b(mes que vem|proximo mes)\b/,' ');}
+  if(/\bmes passado\b/.test(t)){refs.push(addYM(curYM(),-1));t=t.replace(/\bmes passado\b/,' ');}
+  t=t.replace(MES_RE,(all,w,y)=>{const mm=MES_N[w];let yy=y?+y:cy;if(!y){if(mm>cm+6)yy--;else if(mm<cm-6)yy++;}refs.push(yy+'-'+pad(mm));return ' mensalidade ';});
+  /* valor */
+  /* valor: o que vem com R$; senão o último número ("comprei 2 bolas 240" = 240) */
+  let val=null;
+  const nums=[...t.matchAll(/(r\$\s*)?\b(\d{1,3}(?:\.\d{3})+|\d+)(?:[,.](\d{1,2}))?\b/g)];
+  if((m=nums.find(x=>x[1])||nums[nums.length-1])){val=+(m[2].replace(/\./g,'')+(m[3]?'.'+m[3]:''));t=t.replace(m[0],' ');}
+  const mens=/\bmensalidade/.test(t), diaria=/\b(diaria|avulso|avulsa)\b/.test(t), desc=descOf(raw,found), items=[];
+  if(found.length){
+    found.forEach(p=>{
+      const cat=diaria?'diaria':mens?'mens':(p.guest?'diaria':'mens');
+      if(cat==='diaria'){items.push({cat,pid:p.id,nome:p.name,d,v:val!=null?r2(val/found.length):cfg.diaria});return;}
+      const months=refs.slice();
+      if(!months.length){
+        let k=nMeses||1;
+        if(!nMeses&&val!=null&&cfg.mens>0&&found.length===1){const q=val/cfg.mens;if(q>1&&Math.abs(q-Math.round(q))<1e-9)k=Math.round(q);}
+        let ym=curYM();
+        for(let i=0;i<k;i++){while(isPaid(p.id,ym)||months.includes(ym))ym=addYM(ym,1);months.push(ym);}
+      }
+      const each=val!=null?r2(val/found.length/months.length):cfg.mens;
+      months.forEach(ref=>items.push({cat:'mens',pid:p.id,nome:p.name,ref,d,v:each}));
+    });
+  }else if(KW_IN.test(t)&&!KW_OUT.test(t)){
+    items.push({cat:'entrada',pid:null,nome:'',d,v:val??0,desc:desc||'Entrada'});
+  }else if(KW_OUT.test(t)||KW_LOCAL.test(t)||val!=null){
+    const loc=KW_LOCAL.test(t);
+    items.push({cat:loc?'local':'despesa',pid:null,nome:'',d,v:val??(loc?cfg.local:0),desc:desc||(loc?'Aluguel do local':'')});
+  }
+  if(!items.length)return {err:'Não entendi. Tente “Daniel pagou mensalidade”, “Osni pagou diária 10” ou “paguei a quadra 250”.'};
+  return {items};
+}
+
+const monthBar=()=>{const ym=cxM();return `<div class="mbar"><button data-a="cxPrev" aria-label="Mês anterior">${ic('left',20)}</button><b>${ymLabel(ym)}</b><button data-a="cxNext" aria-label="Próximo mês"${ym>=addYM(curYM(),12)?' disabled':''}>${ic('right',20)}</button></div>`;};
+const txRow=t=>`<button class="arow" data-a="txOpen" data-id="${t.id}"><span class="who"><span class="nm">${esc(txTitle(t))}</span><span class="meta">${CAT[t.cat].n}${t.ref?' · ref. '+ymShort(t.ref):''} · ${dShort(t.d)}${(t.cat==='mens'||t.cat==='diaria')&&t.desc?' · '+esc(t.desc):''}</span></span><span class="money ${t.v>=0?'in':'out'}">${brlS(t.v)}</span></button>`;
+function vCaixa(){
+  const saldo=saldoAt(), ms=monthSum(curYM());
+  let h=`<div class="saldo"><span>Saldo do caixa</span><b class="${saldo<0?'neg':''}">${brl(saldo)}</b><small>Neste mês: entradas ${brl(ms.ent)} · saídas ${brl(-ms.sai)}</small></div>`;
+  if(F().tx.length&&Date.now()-S.lastBackup>7*864e5)h+=`<div class="alert"><p><b>Faça um backup do caixa.</b> Os lançamentos ficam só neste celular. ${S.lastBackup?'Último backup em '+new Date(S.lastBackup).toLocaleDateString('pt-BR')+'.':'Nenhum backup feito ainda.'}</p><p><button class="link" style="padding-left:0" data-a="export">Fazer backup agora</button></p></div>`;
+  h+=`<div class="quick"><label class="field">${ic('edit',20)}<input id="qtx" type="text" placeholder="Ex.: Daniel pagou" value="${esc(qtx)}" autocomplete="off" enterkeyhint="send" aria-label="Lançamento por texto"></label><button class="btn btn-pri" data-a="txParse">Lançar</button></div>
+    <p class="hint" style="margin-top:8px">Escreva como fala: “Osni pagou diária 10”, “Renan pagou 2 meses”, “paguei a quadra”, “paguei bola 120 ontem”.</p>`;
+  h+=`<div class="filters" role="tablist" aria-label="Seções do caixa">${[['mens','Mensalidades'],['tx','Lançamentos'],['rep','Relatório'],['cfg','Ajustes']].map(([k,n])=>`<button role="tab" aria-selected="${cxView===k}" class="${cxView===k?'on':''}" data-a="cxView" data-v="${k}">${n}</button>`).join('')}</div>`;
+  h+=({mens:vMens,tx:vTx,rep:vRep,cfg:vCfg})[cxView]();
+  return h+fab('txNew','Novo lançamento');
+}
+function vMens(){
+  const ym=cxM(), rows=mensOf(ym), pagos=rows.filter(r=>r.t);
+  let h=monthBar();
+  if(!rows.length)return h+`<div class="empty"><b>Nenhum atleta da turma</b><p>Cadastre os atletas em Jogadores. Convidados pagam diária e não entram aqui.</p></div>`;
+  const tot=r2(pagos.reduce((s,r)=>s+r.t.v,0));
+  h+=`<div class="tally" style="margin-top:0"><div><b>${pagos.length}</b><span>pagaram</span></div><div><b>${rows.length-pagos.length}</b><span>em aberto</span></div><div><b>${tot.toLocaleString('pt-BR')}</b><span>recebido (R$)</span></div></div>`;
+  if(!F().cfg.mens)h+=`<p class="hint" style="margin-top:10px">Sem valor fixo de mensalidade: escreva o valor ao lançar (ex.: “${esc((rows[0]||{p:{name:'Lucas'}}).p.name)} pagou 30”). Se passar a ter valor fixo, defina em Ajustes.</p>`;
+  h+=`<div class="sec"><h2>Atletas da turma</h2></div><div class="plain">${rows.map(r=>{
+    const tags=[];
+    return `<button class="arow" data-a="mensRow" data-id="${r.p.id}"><span class="who"><span class="nm">${esc(r.p.name)}</span><span class="meta">${r.t?`<span class="st-ok">✓ Pago em ${dShort(r.t.d)} · ${brl(r.t.v)}</span>`:'<span>Em aberto</span>'}${tags.join('')}</span></span>${r.t?`<span class="st-ok">${ic('check',22)}</span>`:`<span class="go">${ic('plus',20)}</span>`}</button>`;
+  }).join('')}</div>`;
+  const dia=monthTx(ym).filter(t=>t.cat==='diaria');
+  if(dia.length)h+=`<div class="sec"><h2>Diárias no mês <span class="count">${dia.length}</span></h2></div><div class="plain">${dia.map(txRow).join('')}</div>`;
+  return h;
+}
+function vTx(){
+  const ym=cxM(), tx=monthTx(ym);
+  const h=monthBar();
+  if(!tx.length)return h+`<div class="empty"><b>Nenhum lançamento em ${ymLabel(ym).toLowerCase()}</b><p>Use o campo acima ou o botão + para lançar.</p></div>`;
+  return h+`<div class="plain">${tx.map(txRow).join('')}</div>`;
+}
+function repTable(s){
+  const row=(a,b,c='')=>`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`;
+  return `<table class="rep">${row('Saldo no início do mês',brl(s.ini),'tot')}
+    ${row('Entradas',brl(s.ent),'tot')}${row(`Mensalidades (${s.n.mens})`,brl(s.mens),'sub')}${row(`Diárias (${s.n.diaria})`,brl(s.diaria),'sub')}${s.n.entrada?row(`Outras entradas (${s.n.entrada})`,brl(s.entrada),'sub'):''}
+    ${row('Saídas',brl(s.sai),'tot')}${row(`Aluguel do local (${s.n.local})`,brl(s.local),'sub')}${despesas(s).map(([k,v])=>row(esc(k),brl(v),'sub')).join('')}
+    ${row('Resultado do mês',brlS(s.res),'tot')}${row('Saldo no fim do mês',brl(s.fim),'tot')}</table>`;
+}
+function vRep(){
+  const ym=cxM(), s=monthSum(ym), ms=mensOf(ym), pg=ms.filter(r=>r.t), ab=ms.filter(r=>!r.t);
+  return monthBar()+`<div class="panel">${repTable(s)}</div>
+  <div class="panel"><p style="margin:0"><b>Saldo atual do caixa: ${brl(saldoAt())}</b></p>
+    <p class="muted"><b>Pagaram (${pg.length}):</b> ${pg.map(r=>esc(r.p.name)).join(', ')||'ninguém'}</p>
+    <p class="muted"><b>Em aberto (${ab.length}):</b> ${ab.map(r=>esc(r.p.name)).join(', ')||'ninguém'}</p></div>
+  <div class="row2" style="margin-top:12px"><button class="btn btn-pri" data-a="repShare">${ic('share',20)}WhatsApp</button><button class="btn btn-out" data-a="repPrint">${ic('print',20)}PDF</button></div>
+  <button class="btn btn-out" style="margin-top:10px" data-a="repCsv">${ic('table',20)}Planilha (Excel)</button>`;
+}
+function repText(ym){
+  const s=monthSum(ym), ms=mensOf(ym), pg=ms.filter(r=>r.t), ab=ms.filter(r=>!r.t);
+  const L=[`💰 *Caixa ${'Amigos do Dag'}*`,`*${ymLabel(ym)}*`,'',`Saldo no início do mês: ${brl(s.ini)}`,'',
+    `*Entradas: ${brl(s.ent)}*`,`• Mensalidades (${s.n.mens}): ${brl(s.mens)}`,`• Diárias (${s.n.diaria}): ${brl(s.diaria)}`];
+  if(s.n.entrada)L.push(`• Outras entradas (${s.n.entrada}): ${brl(s.entrada)}`);
+  L.push('',`*Saídas: ${brl(s.sai)}*`,`• Aluguel do local (${s.n.local}): ${brl(s.local)}`);
+  despesas(s).forEach(([k,v])=>L.push(`• ${k}: ${brl(v)}`));
+  L.push('',`*Resultado do mês: ${brlS(s.res)}*`,`Saldo no fim do mês: ${brl(s.fim)}`,`*Saldo atual do caixa: ${brl(saldoAt())}*`,'',
+    `✅ Pagaram (${pg.length}): ${pg.map(r=>r.p.name).join(', ')||'ninguém'}`,`⏳ Em aberto (${ab.length}): ${ab.map(r=>r.p.name).join(', ')||'ninguém'}`);
+  return L.join('\n');
+}
+function repCsv(ym){
+  const q=x=>{x=String(x??'');return /[;"\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;};
+  const rows=[['Data','Tipo','Categoria','Atleta','Referência','Descrição','Valor']];
+  monthTx(ym).slice().reverse().forEach(t=>rows.push([dLong(t.d),t.v>=0?'Entrada':'Saída',CAT[t.cat].n,txName(t),t.ref?ymShort(t.ref):'',t.desc,t.v.toFixed(2).replace('.',',')]));
+  return '﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n');
+}
+function vCfg(){
+  const c=F().cfg, mv=v=>String(v).replace('.',',');
+  return `<div class="panel">
+    <label class="lbl" for="cmens">Mensalidade (R$)</label><input class="txt" id="cmens" inputmode="decimal" value="${mv(c.mens)}">
+    <label class="lbl" for="cdia">Diária de convidado (R$)</label><input class="txt" id="cdia" inputmode="decimal" value="${mv(c.diaria)}">
+    <label class="lbl" for="cloc">Aluguel do local (R$)</label><input class="txt" id="cloc" inputmode="decimal" value="${mv(c.local)}">
+    <label class="lbl" for="cini">Saldo inicial do caixa (R$)</label><input class="txt" id="cini" inputmode="decimal" value="${mv(c.saldoIni)}">
+    <p class="muted">São os valores sugeridos nos lançamentos novos. Mudar a mensalidade não altera o que já foi lançado. O saldo inicial é o dinheiro que já existia antes do primeiro lançamento.</p>
+    <div class="actions"><button class="btn btn-pri" data-a="cfgSave">Salvar valores</button></div></div>
+  <div class="sec"><h2>Backup e importação</h2></div>
+  <div class="panel"><p style="margin:0">O caixa fica só neste celular. Faça backup toda semana e guarde o arquivo (por exemplo, mande para você mesmo no WhatsApp).</p><div style="height:12px"></div>
+    <button class="btn btn-pri" data-a="export">Fazer backup (exportar)</button></div>`;
+}
+
+const VIEWS={chegada:vChegada,jogadores:vJogadores,regras:vRegras,times:vTimes,caixa:vCaixa,dados:vDados};
+function subText(){
+  if(tab==='chegada')return dateLabel();
+  if(tab==='jogadores')return `${S.players.length} cadastrado${S.players.length===1?'':'s'}`;
+  if(tab==='regras')return `${S.rules.length} regra${S.rules.length===1?'':'s'}`;
+  if(tab==='times')return `${S.queue.length} na chegada`;
+  if(tab==='caixa')return `Saldo ${brl(saldoAt())}`;
+  return storageOk?'Salvo neste aparelho':'Sem salvar';
+}
+function render(){
+  if(drag||tdrag)return;
+  if(!VIEWS[tab])tab='chegada';
+  const nv=navOf(tab);
+  $('#nav').innerHTML=TABS.map(t=>`<button class="${t.id===nv?'on':''}" data-a="tab" data-tab="${t.id}"${t.id===nv?' aria-current="page"':''}><span class="ic">${ic(t.i,22)}</span>${t.n}</button>`).join('');
+  $('#title').textContent=TITLES[tab];
+  $('#sub').textContent=subText();
+  $('#view').innerHTML=VIEWS[tab]();
+  if(flashId!=null){
+    const el=document.querySelector(`.qrow[data-id="${flashId}"]`);
+    if(el&&flashScroll)el.scrollIntoView({block:'center',behavior:'smooth'});
+    flashId=null;flashScroll=false;
+  }
+}
+function refreshSearch(){
+  if(tab==='chegada'){const r=$('#qres');if(r)r.innerHTML=qResHtml();}
+  if(tab==='jogadores'){const l=$('#list');if(l)l.innerHTML=listJog();}
+  const f=$('.field');
+  if(f){const x=f.querySelector('.field-x');
+    if(search&&!x)f.insertAdjacentHTML('beforeend',`<button class="field-x" data-a="clearSearch" aria-label="Limpar busca">${ic('x',18)}</button>`);
+    if(!search&&x)x.remove();}
+}
+
+/* ================= folhas (editor e mover) ================= */
+function renderSheet(){
+  const el=$('#sheet');
+  if(!sheet){el.innerHTML='';return;}
+  let body='';
+  if(sheet.type==='player'){
+    const d=sheet.d;
+    body=`<h3>${d.id?'Editar jogador':'Novo jogador'}</h3>
+      <label class="lbl" for="fname">Nome</label>
+      <input class="txt" id="fname" value="${esc(d.name)}" autocomplete="off" autocapitalize="words" enterkeyhint="done">
+      <span class="lbl">Nível</span>
+      <div class="seg">${[1,2,3,4].map(n=>`<button class="${d.level===n?'on':''}" data-a="dLevel" data-v="${n}" aria-pressed="${d.level===n}">${pips(n)}<small>${LEVEL_NAME[n]}</small></button>`).join('')}</div>
+      <span class="lbl">Posição principal</span>
+      <div class="seg">${POS.map(k=>`<button class="${d.pos===k?'on':''}" data-a="dPos" data-v="${k}" aria-pressed="${d.pos===k}">${POS_SHORT[k]}</button>`).join('')}</div>
+      ${d.pos==='G'?'':`<span class="lbl">Também joga de</span>
+      <div class="seg"><button class="${!d.pos2?'on':''}" data-a="dPos2" data-v="" aria-pressed="${!d.pos2}">Só essa</button>${LINE.filter(k=>k!==d.pos).map(k=>`<button class="${d.pos2===k?'on':''}" data-a="dPos2" data-v="${k}" aria-pressed="${d.pos2===k}">${POS_SHORT[k]}</button>`).join('')}</div>
+      <p class="muted">Com uma segunda posição, o sorteio escala o jogador onde o time mais precisa.</p>`}
+      <div style="height:8px"></div>
+      <button class="switch" role="switch" aria-checked="${!!d.guest}" data-a="dGuest">Convidado (paga diária e fica no fim da lista)<i></i></button>
+      <p class="muted">Leve serve para quem joga mais devagar, inclusive os mais velhos. Extra forte é para os craques.</p>
+      <div class="actions"><button class="btn btn-pri" data-a="saveP">${d.id?'Salvar alterações':d.enqueue?'Cadastrar e marcar chegada':'Cadastrar jogador'}</button>
+      ${d.id?'<button class="btn btn-danger" data-a="delP">Excluir jogador</button>':''}
+      <button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }else if(sheet.type==='move'){
+    const p=P(sheet.id), i=S.queue.indexOf(sheet.id), n=S.queue.length;
+    body=`<h3>Mover ${esc(p.name)}</h3>
+      <p class="muted" style="margin-top:-6px">Chegou em ${i+1}º de ${n}. Escolha a nova posição.</p>
+      <div style="display:flex;justify-content:center;margin:18px 0 14px"><div class="stepper">
+        <button data-a="mvStep" data-v="-1" aria-label="Uma posição para cima">${ic('minus',20)}</button>
+        <input id="mvPos" type="number" inputmode="numeric" min="1" max="${n}" value="${i+1}" aria-label="Nova posição">
+        <button data-a="mvStep" data-v="1" aria-label="Uma posição para baixo">${ic('plus',20)}</button></div></div>
+      <div class="row2"><button class="btn btn-out" data-a="mvSet" data-v="1">Para o 1º</button><button class="btn btn-out" data-a="mvSet" data-v="${n}">Para o último</button></div>
+      <div class="actions"><button class="btn btn-pri" data-a="mvGo">Mover para esta posição</button><button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }else if(sheet.type==='bmove'){
+    const p=P(sheet.id), B=S.last.bench, i=B.indexOf(sheet.id), n=B.length, nx=proximos(S.last);
+    body=`<h3>Mover ${esc(p.name)} na reserva</h3>
+      <p class="muted" style="margin-top:-6px">Está em ${i+1}º de ${n}${nx.has(sheet.id)?' e entra no próximo time':' e, por enquanto, fica de fora do próximo jogo'}. Escolha o novo lugar na fila.</p>
+      <div style="display:flex;justify-content:center;margin:18px 0 14px"><div class="stepper">
+        <button data-a="mvStep" data-v="-1" aria-label="Um lugar para cima">${ic('minus',20)}</button>
+        <input id="mvPos" type="number" inputmode="numeric" min="1" max="${n}" value="${i+1}" aria-label="Novo lugar na reserva">
+        <button data-a="mvStep" data-v="1" aria-label="Um lugar para baixo">${ic('plus',20)}</button></div></div>
+      <div class="row2"><button class="btn btn-out" data-a="bmSet" data-v="1">Para o 1º</button><button class="btn btn-out" data-a="bmSet" data-v="${n}">Para o último</button></div>
+      <div class="actions"><button class="btn btn-pri" data-a="bmGo">Mover para este lugar</button><button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }else if(sheet.type==='eval'){
+    body=`<h3>Colar avaliação</h3>
+      <p class="muted" style="margin-top:-6px">No WhatsApp, segure a mensagem da avaliação, toque em Copiar e cole abaixo.</p>
+      <textarea class="txt" id="evalTxt" style="height:200px;padding:12px;font-size:14px;margin-top:12px" placeholder="📋 Avaliação Amigos do Dag&#10;Avaliador: …"></textarea>
+      <div class="actions"><button class="btn btn-pri" data-a="evalAdd">Adicionar avaliação</button><button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }else if(sheet.type==='txs'){
+    const items=sheet.items;
+    body=`<h3>Confere?</h3><p class="muted" style="margin-top:-6px">Entendi ${items.length} lançamento${items.length>1?'s':''}. Toque em Editar para corrigir.</p>
+      ${items.map((x,i)=>{
+        const w=[], inn=CAT[x.cat].in;
+        if(!(Math.abs(x.v)>0))w.push('Falta o valor.');
+        if(x.cat==='mens'&&x.pid!=null&&isPaid(x.pid,x.ref))w.push(`${txName(x)} já tem mensalidade de ${ymShort(x.ref)} lançada.`);
+        return `<div class="txc"><div class="txc-h"><b>${esc(txTitle(x))}</b><span class="money ${inn?'in':'out'}">${x.v?brlS(inn?Math.abs(x.v):-Math.abs(x.v)):'R$ ?'}</span></div>
+          <div class="meta">${inn?'Entrada':'Saída'} · ${CAT[x.cat].n}${x.cat==='mens'?' · ref. '+ymShort(x.ref):''} · ${dShort(x.d)}</div>
+          ${w.map(m=>`<p class="txc-w">⚠️ ${esc(m)}</p>`).join('')}
+          <div class="txc-a"><button class="link" data-a="txItemEdit" data-i="${i}">Editar</button><button class="link" data-a="txItemDel" data-i="${i}">Remover</button></div></div>`;
+      }).join('')}
+      <div class="actions"><button class="btn btn-pri" data-a="txConfirm">${ic('check',20)}Confirmar</button><button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }else if(sheet.type==='txe'){
+    const d=sheet.d, withP=d.cat==='mens'||d.cat==='diaria'||d.cat==='entrada', needP=d.cat==='mens'||d.cat==='diaria';
+    const opt=(v,l,sel)=>`<option value="${esc(v)}"${sel?' selected':''}>${esc(l)}</option>`;
+    const ps=S.players.slice().sort(byName);
+    const pOpts=(d.pid==null&&d.nome?opt('n:'+d.nome,d.nome+' (fora da lista)',true):opt('',needP?'Escolha…':'— nenhum —',d.pid==null))
+      +`<optgroup label="Turma">${ps.filter(p=>!p.guest).map(p=>opt(p.id,p.name,p.id===d.pid)).join('')}</optgroup>`
+      +`<optgroup label="Convidados">${ps.filter(p=>p.guest).map(p=>opt(p.id,p.name,p.id===d.pid)).join('')}</optgroup>`;
+    body=`<h3>${d.id?'Editar lançamento':sheet.items?'Ajustar lançamento':'Novo lançamento'}</h3>
+      <label class="lbl" for="tcat">Tipo</label><select id="tcat">${Object.entries(CAT).map(([k,c])=>opt(k,(c.in?'Entrada · ':'Saída · ')+c.n,d.cat===k)).join('')}</select>
+      ${withP?`<label class="lbl" for="tpid">Atleta${needP?'':' (opcional)'}</label><select id="tpid">${pOpts}</select>`:''}
+      ${d.cat==='mens'?`<label class="lbl" for="tref">Mês da mensalidade</label><input class="txt" id="tref" type="month" value="${esc(d.ref||cxM())}">`:''}
+      <label class="lbl" for="tval">Valor (R$)</label><input class="txt" id="tval" inputmode="decimal" placeholder="0,00" value="${d.v?String(Math.abs(d.v)).replace('.',','):''}">
+      <label class="lbl" for="tdate">Data</label><input class="txt" id="tdate" type="date" value="${esc(d.d)}">
+      <label class="lbl" for="tdesc">Descrição${d.cat==='despesa'||d.cat==='entrada'?'':' (opcional)'}</label><input class="txt" id="tdesc" value="${esc(d.desc||'')}" placeholder="${d.cat==='despesa'?'Ex.: Bola':''}" autocomplete="off">
+      <div class="actions"><button class="btn btn-pri" data-a="txSave">${sheet.items?'OK':'Salvar'}</button>${d.id?'<button class="btn btn-danger" data-a="txDel">Apagar lançamento</button>':''}<button class="btn btn-out" data-a="txBack">${sheet.items?'Voltar':'Cancelar'}</button></div>`;
+  }else if(sheet.type==='troca'){
+    const L=S.last, k=sheet.k, x=trocaPlan(L,k), venc=playOf(L).find(t=>t!==k), R=papeis(x.novo,L.teams[venc],L);
+    const li=(id,extra)=>`<li>${posTag(R[id]||roleOf(L,id))}<span class="nm">${esc(P(id).name)}</span>${extra||''}</li>`;
+    const sai=x.saem.filter(id=>!x.novo.includes(id)), cor=TEAMS[k].n.toLowerCase();
+    body=`<h3>${TEAMS[k].n} perdeu</h3>
+      <p class="muted" style="margin-top:-6px">${x.w==null?`O ${TEAMS[venc].n} continua em campo. Quem entra veste o colete ${cor}.`:`O ${TEAMS[x.w].n} entra para jogar contra o ${TEAMS[venc].n}. O próximo time veste o colete ${cor} e espera.`}</p>
+      <span class="lbl">${x.w==null?'Entram':'Próximo time'} (${x.novo.length})</span>
+      <ul class="mini">${x.novo.map(id=>li(id,x.saem.includes(id)?`<span class="tag">${id===x.g?'fica no gol':`continua · ${x.jg(id)} jogo${x.jg(id)>1?'s':''}`}</span>`:'')).join('')}</ul>
+      ${x.g==null?'<p class="txc-w">⚠️ Não tem goleiro para este time.</p>':x.gFica?`<p class="muted">Não tem goleiro na reserva, então o ${esc(P(x.g).name)} continua no gol.</p>`:''}
+      ${x.voltam.some(id=>id!==x.g)?`<p class="muted">A reserva não completa o time: continua quem perdeu e jogou menos hoje; empatando, quem chegou primeiro.</p>`:''}
+      <span class="lbl">Vão para o fim da reserva (${sai.length})</span>
+      ${sai.length?`<ul class="mini">${sai.map(id=>li(id,`<span class="tag">${isGk(id)?'':`${x.jg(id)} jogo${x.jg(id)>1?'s':''} · `}${chegou(id)<1e9?`chegou ${chegou(id)+1}º`:'chegou depois'}</span>`)).join('')}</ul><p class="muted">Ficam atrás de quem já esperava, na ordem em que chegaram.</p>`:'<p class="muted">Ninguém.</p>'}
+      <div class="actions"><button class="btn btn-pri" data-a="trocaOk">${ic('check',20)}Confirmar troca</button><button class="btn btn-out" data-a="closeSheet">Cancelar</button></div>`;
+  }
+  el.innerHTML=`<div class="sheet-back" data-a="closeSheet"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${body}</div>`;
+}
+function openPlayer(id,opts={}){
+  const p=id?P(id):null;
+  sheet={type:'player',d:{id:id||null,name:p?p.name:(opts.name||''),level:p?p.level:2,pos:p?p.pos:'M',pos2:p?p.pos2:null,guest:p?!!p.guest:false,enqueue:!!opts.enqueue}};
+  renderSheet();
+  if(!id)setTimeout(()=>{const i=$('#fname');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},280);
+}
+const syncName=()=>{const i=$('#fname');if(i&&sheet&&sheet.d)sheet.d.name=i.value;};
+function closeSheet(){sheet=null;renderSheet();}
+function syncTx(){
+  if(!sheet||sheet.type!=='txe')return;
+  const d=sheet.d, g=id=>{const e=$('#'+id);return e?e.value:null;};
+  const c=g('tcat');if(c)d.cat=c;
+  const pv=g('tpid');
+  if(pv!=null){if(pv.startsWith('n:')){d.pid=null;d.nome=pv.slice(2);}else if(pv===''){d.pid=null;d.nome='';}else{d.pid=+pv;d.nome=P(+pv).name;}}
+  const r=g('tref');if(r!=null)d.ref=r;
+  const v=g('tval');if(v!=null)d.v=parseMoney(v)||0;
+  const dd=g('tdate');if(dd)d.d=dd;
+  const ds=g('tdesc');if(ds!=null)d.desc=ds.trim();
+}
+function moveQueue(id,to){
+  const from=S.queue.indexOf(id);if(from<0)return;
+  to=Math.max(0,Math.min(S.queue.length-1,to));
+  S.queue.splice(from,1);S.queue.splice(to,0,id);
+  flashId=id;flashScroll=true;save();
+}
+
+/* ================= aviso com desfazer ================= */
+let toastT;
+function toast(msg,undo){
+  const t=$('#toast');
+  undoFn=undo||null;
+  t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button data-a="undo">Desfazer</button>':''}`;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{t.classList.remove('show');undoFn=null;},undo?5000:2400);
+}
+function withUndo(msg,fn){
+  const snap=JSON.stringify(S);
+  fn();save();render();
+  toast(msg,()=>{S=sanitize(JSON.parse(snap));save();render();});
+}
+function shareOrCopy(txt,msg){
+  const copy=()=>{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>fallbackCopy(txt,msg));else fallbackCopy(txt,msg);};
+  if(navigator.share)navigator.share({text:txt}).catch(err=>{if(err&&err.name!=='AbortError')copy();});else copy();
+}
+function download(name,text,type){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function copyText(txt){
+  const done=()=>toast('Times copiados.');
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt));
+  else fallbackCopy(txt);
+}
+function fallbackCopy(txt,msg='Times copiados.'){
+  const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;opacity:0;top:0';
+  document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  ta.remove();toast(ok?msg:'Não deu para copiar neste navegador.');
+}
+
+/* ================= arrastar a fila ================= */
+let drag=null;
+function layoutDrag(){
+  const d=drag;
+  let dy=(d.y-d.y0)+(window.scrollY-d.s0);
+  dy=Math.max(d.min,Math.min(d.max,dy));
+  d.row.style.transform=`translateY(${dy}px) scale(1.02)`;
+  const center=d.rects[d.from].top+d.rects[d.from].h/2+dy;
+  let to=0;d.rects.forEach((r,i)=>{if(i!==d.from&&r.top+r.h/2<center)to++;});
+  if(to!==d.to){d.to=to;vibrate(6);}
+  d.rows.forEach((r,i)=>{
+    if(i===d.from)return;
+    const s=(i>d.from&&i<=to)?-d.h:(i>=to&&i<d.from)?d.h:0;
+    r.style.transform=s?`translateY(${s}px)`:'';
+  });
+}
+function dragTick(){
+  if(!drag)return;
+  const top=$('.bar').getBoundingClientRect().bottom, bot=$('.nav').getBoundingClientRect().top, zone=80;
+  let v=0;
+  /* só rola na direção em que o dedo está indo */
+  if(drag.y<top+zone&&drag.y<drag.y0-8)v=-Math.min(16,Math.ceil((top+zone-drag.y)/5));
+  else if(drag.y>bot-zone&&drag.y>drag.y0+8)v=Math.min(16,Math.ceil((drag.y-(bot-zone))/5));
+  if(v){const b=window.scrollY;window.scrollBy(0,v);if(window.scrollY!==b)layoutDrag();}
+  drag.raf=requestAnimationFrame(dragTick);
+}
+document.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('.handle');
+  if(!h||drag)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  e.preventDefault();
+  const row=h.closest('.qrow'), list=row.parentElement, rows=[...list.children], from=rows.indexOf(row), sy=window.scrollY;
+  const rects=rows.map(r=>{const b=r.getBoundingClientRect();return {top:b.top+sy,h:b.height};});
+  const last=rects[rects.length-1];
+  drag={row,list,rows,from,to:from,rects,h:rects[from].h,y0:e.clientY,y:e.clientY,s0:sy,pid:e.pointerId,raf:0,
+    min:rects[0].top-rects[from].top, max:(last.top+last.h)-(rects[from].top+rects[from].h)};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}
+  list.classList.add('sorting');row.classList.add('dragging');
+  vibrate(15);layoutDrag();
+  drag.raf=requestAnimationFrame(dragTick);
+},{passive:false});
+document.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  e.preventDefault();drag.y=e.clientY;layoutDrag();
+},{passive:false});
+function endDrag(e){
+  if(!drag||e.pointerId!==drag.pid)return;
+  cancelAnimationFrame(drag.raf);
+  const d=drag;drag=null;
+  if(d.to!==d.from){
+    const id=S.queue.splice(d.from,1)[0];S.queue.splice(d.to,0,id);
+    flashId=id;save();vibrate(10);
+  }
+  render();
+}
+document.addEventListener('pointerup',endDrag);
+document.addEventListener('pointercancel',endDrag);
+
+/* ================= ajuste manual dos times ================= */
+const boxOf=(L,id)=>{for(let t=0;t<L.teams.length;t++)if(L.teams[t].includes(id))return String(t);return 'b';};
+const boxArr=(L,w)=>w==='b'?L.bench:L.teams[+w];
+const boxName=w=>w==='b'?'a reserva':`o ${TEAMS[+w].n}`;
+function swapPlayers(a,b){
+  const L=S.last, A1=boxArr(L,boxOf(L,a)), B1=boxArr(L,boxOf(L,b));
+  A1[A1.indexOf(a)]=b;B1[B1.indexOf(b)]=a;
+  flashId=null;save();render();vibrate(10);
+  toast(`${P(a).name} e ${P(b).name} trocaram de lugar.`);
+}
+function movePlayer(id,to){
+  const L=S.last, from=boxOf(L,id);
+  if(from===to)return;
+  const src=boxArr(L,from);src.splice(src.indexOf(id),1);
+  boxArr(L,to).push(id);
+  flashId=id;save();render();vibrate(10);
+  toast(`${P(id).name} foi para ${boxName(to)}.`);
+}
+
+function moveBench(id,to){
+  const B=S.last.bench, from=B.indexOf(id);if(from<0)return;
+  to=Math.max(0,Math.min(B.length-1,to));if(to===from)return;
+  withUndo(`${P(id).name} passou para ${to+1}º na reserva.`,()=>{const b=S.last.bench;b.splice(b.indexOf(id),1);b.splice(to,0,id);flashId=id;});
+  vibrate(10);
+}
+/* segurar o nome 1,5 s: o jogador foi embora */
+const HOLD_MS=1500;
+let hold=null, holdFired=false;
+function holdStop(){if(!hold)return;clearTimeout(hold.t);hold.li.classList.remove('holding');hold=null;}
+document.addEventListener('pointerdown',e=>{
+  holdFired=false;
+  const b=e.target.closest('.trow');
+  if(!b||!S.last||tdrag||drag)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  const li=b.closest('.tli'), id=+li.dataset.id;
+  li.classList.add('holding');
+  hold={li,id,x:e.clientX,y:e.clientY,pid:e.pointerId,t:setTimeout(()=>{
+    const p=P(id);holdStop();holdFired=true;pick=null;vibrate(40);
+    let r;withUndo('',()=>{r=embora(id);});
+    toast(r.t==null?`${p.name} foi embora e saiu da reserva.`:r.entrou!=null?`${p.name} foi embora. ${P(r.entrou).name} entrou no ${TEAMS[r.t].n}${r.g&&!isGk(r.entrou)?' e vai para o gol':''}.`:`${p.name} foi embora. ${r.g?'Não tem goleiro':'Não tem ninguém'} na reserva para entrar.`,undoFn);
+  },HOLD_MS)};
+});
+document.addEventListener('pointermove',e=>{if(hold&&e.pointerId===hold.pid&&Math.hypot(e.clientX-hold.x,e.clientY-hold.y)>10)holdStop();});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,e=>{if(hold&&e.pointerId===hold.pid)holdStop();}));
+window.addEventListener('scroll',holdStop,{passive:true});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.trow'))e.preventDefault();});
+/* arrastar entre times: uma cópia do jogador segue o dedo */
+let tdrag=null;
+function tTarget(){
+  const t=tdrag, el=document.elementFromPoint(t.cx,t.y);
+  const li=el&&el.closest('.tli');
+  if(li&&+li.dataset.id!==t.id)return {type:'swap',el:li,id:+li.dataset.id};
+  const box=el&&el.closest('[data-box]');
+  if(box&&box.dataset.box!==t.from)return {type:'move',el:box,box:box.dataset.box};
+  return null;
+}
+function tLayout(){
+  const t=tdrag;
+  t.ghost.style.transform=`translateY(${t.y-t.y0}px) scale(1.03)`;
+  const nt=tTarget();
+  if((nt&&nt.el)!==(t.target&&t.target.el)){
+    if(t.target)t.target.el.classList.remove('drop-swap','drop-into');
+    if(nt){nt.el.classList.add(nt.type==='swap'?'drop-swap':'drop-into');vibrate(5);}
+  }
+  t.target=nt;
+}
+function tTick(){
+  if(!tdrag)return;
+  const top=$('.bar').getBoundingClientRect().bottom, bot=$('.nav').getBoundingClientRect().top, zone=90;
+  const moved=Math.abs(tdrag.y-tdrag.y0)>10;
+  let v=0;
+  if(moved&&tdrag.y<top+zone)v=-Math.min(18,Math.ceil((top+zone-tdrag.y)/4));
+  else if(moved&&tdrag.y>bot-zone)v=Math.min(18,Math.ceil((tdrag.y-(bot-zone))/4));
+  if(v){const b=window.scrollY;window.scrollBy(0,v);if(window.scrollY!==b)tLayout();}
+  tdrag.raf=requestAnimationFrame(tTick);
+}
+document.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('.thandle');
+  if(!h||tdrag||drag||!S.last)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  e.preventDefault();
+  const li=h.closest('.tli'), r=li.getBoundingClientRect(), id=+li.dataset.id;
+  const ghost=li.cloneNode(true);
+  ghost.classList.add('ghost');ghost.classList.remove('flash');
+  ghost.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px`;
+  document.body.appendChild(ghost);
+  li.classList.add('lifted');
+  if(pick!=null){pick=null;document.querySelectorAll('.trow.sel').forEach(b=>b.classList.remove('sel'));}
+  tdrag={id,li,ghost,from:boxOf(S.last,id),cx:r.left+r.width/2,y0:e.clientY,y:e.clientY,pid:e.pointerId,target:null,raf:0};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}
+  document.body.classList.add('tdragging');
+  vibrate(15);tLayout();
+  tdrag.raf=requestAnimationFrame(tTick);
+},{passive:false});
+document.addEventListener('pointermove',e=>{
+  if(!tdrag||e.pointerId!==tdrag.pid)return;
+  e.preventDefault();tdrag.y=e.clientY;tLayout();
+},{passive:false});
+function tEnd(e){
+  if(!tdrag||e.pointerId!==tdrag.pid)return;
+  cancelAnimationFrame(tdrag.raf);
+  const t=tdrag;tdrag=null;
+  t.ghost.remove();t.li.classList.remove('lifted');
+  if(t.target)t.target.el.classList.remove('drop-swap','drop-into');
+  document.body.classList.remove('tdragging');
+  if(e.type==='pointercancel'||!t.target)return;
+  if(t.target.type==='swap'){
+    if(boxOf(S.last,t.target.id)===t.from){if(t.from==='b')moveBench(t.id,S.last.bench.indexOf(t.target.id));else toast('Os dois já estão no mesmo time.');return;}
+    swapPlayers(t.id,t.target.id);
+  }else movePlayer(t.id,t.target.box);
+}
+document.addEventListener('pointerup',tEnd);
+document.addEventListener('pointercancel',tEnd);
+
+/* ================= ações ================= */
+const A={
+  tab(el){tab=el.dataset.tab;search='';pick=null;try{localStorage.setItem(TAB_KEY,tab);}catch(e){}render();window.scrollTo(0,0);},
+  clearSearch(){search='';render();const q=$('#q');if(q)q.focus();},
+  undo(){if(undoFn){const f=undoFn;undoFn=null;$('#toast').classList.remove('show');f();}},
+
+  /* chegada */
+  enqueue(el){
+    const id=+el.dataset.id;if(S.queue.includes(id))return;
+    const fromSearch=!!el.closest('#qres');
+    S.queue.push(id);flashId=id;save();vibrate(10);
+    const p=P(id);
+    if(fromSearch)search='';
+    render();
+    toast(`${p.name} chegou em ${S.queue.length}º.`);
+    if(fromSearch){const q=$('#q');if(q)q.focus();}
+  },
+  unqueue(el){const id=+el.dataset.id, p=P(id);withUndo(`${p.name} saiu da fila.`,()=>{S.queue=S.queue.filter(x=>x!==id);});},
+  clearQueue(){if(!S.queue.length)return;withUndo('Ordem de chegada zerada.',()=>{S.queue=[];S.last=null;pick=null;});},
+  toggleAbs(){absOpen=!absOpen;render();},
+  moveTo(el){sheet={type:'move',id:+el.dataset.id};renderSheet();},
+  mvStep(el){const i=$('#mvPos');const n=+i.max||S.queue.length;i.value=Math.max(1,Math.min(n,(+i.value||1)+ +el.dataset.v));},
+  mvSet(el){const id=sheet.id;closeSheet();moveQueue(id,+el.dataset.v-1);render();},
+  mvGo(){const id=sheet.id, v=+$('#mvPos').value||1;closeSheet();moveQueue(id,v-1);render();},
+  bmove(el){if(!S.last)return;pick=null;sheet={type:'bmove',id:+el.dataset.id};renderSheet();},
+  bmSet(el){const id=sheet.id;closeSheet();moveBench(id,+el.dataset.v-1);},
+  bmGo(){const id=sheet.id, v=+$('#mvPos').value||1;closeSheet();moveBench(id,v-1);},
+
+  /* jogadores */
+  newPlayer(){openPlayer(null);},
+  newPlayerQ(){openPlayer(null,{enqueue:true,name:search.trim()});},
+  edit(el){openPlayer(+el.dataset.id);},
+  pfilter(el){pfilter=el.dataset.v;render();},
+  closeSheet(){closeSheet();},
+  dLevel(el){syncName();sheet.d.level=+el.dataset.v;renderSheet();},
+  dPos(el){syncName();const d=sheet.d;d.pos=el.dataset.v;if(d.pos==='G'){d.pos2=null;d.level=4;}else if(d.pos2===d.pos)d.pos2=null;renderSheet();},
+  dPos2(el){syncName();sheet.d.pos2=el.dataset.v||null;renderSheet();},
+  dGuest(){syncName();sheet.d.guest=!sheet.d.guest;renderSheet();},
+  saveP(){
+    syncName();
+    const d=sheet.d, name=d.name.trim().replace(/\s+/g,' ');
+    if(!name){toast('Digite o nome do jogador.');$('#fname').focus();return;}
+    if(S.players.some(p=>p.id!==d.id&&norm(p.name)===norm(name))){toast(`Já existe um jogador chamado ${name}.`);return;}
+    let msg;
+    if(d.id){const p=P(d.id);Object.assign(p,{name,level:d.level,pos:d.pos,pos2:d.pos2,guest:!!d.guest});msg='Alterações salvas.';}
+    else{
+      const id=S.nextId++;S.players.push({id,name,level:d.level,pos:d.pos,pos2:d.pos2,guest:!!d.guest});
+      if(d.enqueue){S.queue.push(id);flashId=id;msg=`${name} cadastrado e chegou em ${S.queue.length}º.`;search='';}
+      else msg=`${name} cadastrado.`;
+    }
+    closeSheet();save();render();toast(msg);
+  },
+  delP(){
+    const id=sheet.d.id, p=P(id);closeSheet();
+    withUndo(`${p.name} excluído.`,()=>{
+      S.players=S.players.filter(x=>x.id!==id);
+      S.rules=S.rules.filter(r=>r.a!==id&&r.b!==id);
+      S.queue=S.queue.filter(x=>x!==id);
+      if(S.last&&[].concat(...S.last.teams,S.last.bench).includes(id))S.last=null;
+    });
+  },
+
+  /* regras */
+  ruleT(el){ruleT=el.dataset.v;render();},
+  addRule(){
+    const a=+$('#ra').value, b=+$('#rb').value;
+    if(!a||!b){toast('Escolha os dois jogadores.');return;}
+    if(a===b){toast('Escolha dois jogadores diferentes.');return;}
+    if(S.rules.some(r=>(r.a===a&&r.b===b)||(r.a===b&&r.b===a))){toast('Esses dois já têm uma regra.');return;}
+    S.rules.push({a,b,t:ruleT});ruleA='';ruleB='';save();render();toast('Regra adicionada.');
+  },
+  delRule(el){const i=+el.dataset.i;withUndo('Regra removida.',()=>{S.rules.splice(i,1);});},
+
+  /* times */
+  setT(el){S.nTeams=+el.dataset.v;S.last=null;pick=null;save();render();},
+  sz(el){S.size=Math.min(11,Math.max(4,S.size+ +el.dataset.v));S.last=null;pick=null;save();render();},
+  lv(){S.showLevels=!S.showLevels;save();render();},
+  cfg(){cfgOpen=!cfgOpen;render();},
+  bal(){balOpen=!balOpen;try{localStorage.setItem('pelada.balOpen',balOpen?'1':'0');}catch(e){}render();},
+  draw(){
+    const r=run();
+    if(r.err){toast(r.err);return;}
+    /* depois de trocas, sortear de novo pode ser desfeito */
+    cfgOpen=false;
+    if(S.last&&S.last.jogo>1)withUndo('Times sorteados de novo. Voltou para o 1º jogo.',()=>{S.last=r;pick=null;});
+    else{S.last=r;pick=null;save();render();}
+    vibrate(20);
+    const b=$('.jogo');if(b)window.scrollTo({top:b.getBoundingClientRect().top+window.scrollY-$('.bar').offsetHeight-12,behavior:'smooth'});
+  },
+  pick(el){
+    if(holdFired){holdFired=false;return;}
+    const id=+el.dataset.id;
+    if(pick==null||pick===id){pick=pick===id?null:id;render();return;}
+    if(boxOf(S.last,pick)===boxOf(S.last,id)){if(boxOf(S.last,id)==='b'){const a=pick;pick=null;moveBench(a,S.last.bench.indexOf(id));return;}pick=id;render();return;}
+    const a=pick;pick=null;swapPlayers(a,id);
+  },
+  share(){
+    const txt=teamsText();
+    if(navigator.share)navigator.share({text:txt}).catch(err=>{if(err&&err.name!=='AbortError')copyText(txt);});
+    else copyText(txt);
+  },
+  copy(){copyText(teamsText());},
+  voltar(){
+    const L=S.last;if(!L||!podeVoltar(L))return;
+    const h=L.hist[L.hist.length-1];
+    withUndo(`Voltou ao ${h.j}º jogo, antes de o ${TEAMS[h.p].n} sair.`,()=>{voltarTroca();pick=null;});
+  },
+  perdeu(el){if(!S.last)return;syncBench(S.last);pick=null;sheet={type:'troca',k:+el.dataset.v};renderSheet();},
+  trocaOk(){
+    const k=sheet.k, w=waitOf(S.last), n=S.last.jogo+1;closeSheet();
+    withUndo(`${w!=null?TEAMS[w].n+' entra':'Time novo no '+TEAMS[k].n}. Começa o ${n}º jogo.`,()=>{trocar(k);});
+    vibrate(20);
+    const b=$('.jogo');if(b)window.scrollTo({top:b.getBoundingClientRect().top+window.scrollY-$('.bar').offsetHeight-12,behavior:'smooth'});
+  },
+
+  /* dados */
+  export(){
+    S.lastBackup=Date.now();save();
+    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`amigos-do-dag-${today()}.json`;
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    render();toast('Backup exportado. Guarde o arquivo fora do celular.');
+  },
+  import(){$('#file').click();},
+  evalLink(){
+    const url=new URL('avaliacao.html',location.href).href;
+    const text='Ajuda a nivelar a turma do Amigos do Dag? Abra o link, marque nível e posição de cada um e toque em Enviar avaliação.';
+    if(navigator.share)navigator.share({title:'Avaliação Amigos do Dag',text,url}).catch(err=>{if(err&&err.name!=='AbortError')copyLink();});
+    else copyLink();
+    function copyLink(){
+      const t=text+'\n'+url;
+      if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Link copiado. Cole no WhatsApp.'),()=>fallbackCopy(t,'Link copiado. Cole no WhatsApp.'));else fallbackCopy(t,'Link copiado. Cole no WhatsApp.');
+    }
+  },
+  evalPaste(){sheet={type:'eval'};renderSheet();setTimeout(()=>{const t=$('#evalTxt');if(t)t.focus();},280);},
+  evalAdd(){
+    const r=parseEval($('#evalTxt').value||'');
+    if(r.err){toast(r.err);return;}
+    S.evals=S.evals||{};
+    const again=!!S.evals[r.who];
+    S.evals[r.who]=r.votes;
+    closeSheet();save();render();
+    toast(`${again?'Avaliação atualizada':'Avaliação adicionada'}: ${r.who}, ${Object.keys(r.votes).length} jogadores.${r.unknown.length?` Não achei: ${r.unknown.join(', ')}.`:''}`);
+  },
+  evalDel(el){const w=el.dataset.w;withUndo(`Avaliação de ${w} removida.`,()=>{delete S.evals[w];});},
+  nivelAll(){nivelAll=!nivelAll;render();},
+  evalApply(){
+    const ch=evalResult().filter(r=>r.changed);
+    withUndo(`${ch.length} jogador${ch.length>1?'es':''} atualizado${ch.length>1?'s':''}.`,()=>{
+      ch.forEach(r=>{const p=P(r.p.id);p.level=r.level;p.pos=r.pos;p.pos2=r.pos2;});
+    });
+  },
+  turma(){
+    if(S.players.length&&!confirm('Isso troca a lista atual pela lista da turma e apaga as regras e a chegada de hoje. Continuar?'))return;
+    withUndo('Lista da turma carregada.',()=>{turmaInto(S);});
+  },
+  simQ(){
+    if(!S.players.length){toast('Cadastre jogadores primeiro.');return;}
+    const T=S.nTeams, g=shuffle(S.players.filter(p=>p.pos==='G')).slice(0,T);
+    const o=shuffle(S.players.filter(p=>p.pos!=='G')).slice(0,T*(S.size-1)+2);
+    S.queue=shuffle(g.concat(o)).map(p=>p.id);S.last=null;pick=null;
+    save();tab='chegada';search='';render();window.scrollTo(0,0);toast('Chegada simulada.');
+  },
+  /* caixa */
+  cxView(el){cxView=el.dataset.v;render();},
+  cxPrev(){cxMonth=addYM(cxM(),-1);render();},
+  cxNext(){cxMonth=addYM(cxM(),1);render();},
+  txParse(){
+    const i=$('#qtx');if(i)qtx=i.value;
+    const r=parseTx(qtx);
+    if(r.err){toast(r.err);return;}
+    sheet={type:'txs',items:r.items};renderSheet();
+  },
+  txItemEdit(el){const i=+el.dataset.i;sheet={type:'txe',d:Object.assign({},sheet.items[i]),items:sheet.items,i};renderSheet();},
+  txItemDel(el){sheet.items.splice(+el.dataset.i,1);if(!sheet.items.length)closeSheet();else renderSheet();},
+  txConfirm(){
+    const items=sheet.items, bad=items.find(x=>!(Math.abs(x.v)>0));
+    if(bad){toast(`Falta o valor em “${txTitle(bad)}”. Toque em Editar.`);return;}
+    if(items.some(x=>(x.cat==='mens'||x.cat==='diaria')&&x.pid==null&&!x.nome)){toast('Escolha o atleta. Toque em Editar.');return;}
+    closeSheet();qtx='';
+    withUndo(`${items.length} lançamento${items.length>1?'s':''} registrado${items.length>1?'s':''}.`,()=>{items.forEach(addTx);});
+  },
+  txNew(){sheet={type:'txe',d:{cat:cxView==='mens'?'mens':'despesa',pid:null,nome:'',ref:cxM(),d:today(),v:0,desc:''}};renderSheet();},
+  txOpen(el){const t=F().tx.find(x=>x.id===+el.dataset.id);if(!t)return;sheet={type:'txe',d:Object.assign({},t)};renderSheet();},
+  mensRow(el){
+    const id=+el.dataset.id, ym=cxM(), t=F().tx.find(x=>x.cat==='mens'&&x.pid===id&&x.ref===ym);
+    sheet={type:'txe',d:t?Object.assign({},t):{cat:'mens',pid:id,nome:P(id).name,ref:ym,d:today(),v:F().cfg.mens,desc:''}};
+    renderSheet();
+  },
+  txSave(){
+    syncTx();const d=sheet.d;
+    if(!(Math.abs(d.v)>0)){toast('Informe o valor.');return;}
+    if((d.cat==='mens'||d.cat==='diaria')&&d.pid==null&&!d.nome){toast('Escolha o atleta.');return;}
+    if(d.cat==='mens'&&!/^\d{4}-\d\d$/.test(d.ref||'')){toast('Escolha o mês da mensalidade.');return;}
+    if(sheet.items){sheet.items[sheet.i]=d;sheet={type:'txs',items:sheet.items};renderSheet();return;}
+    closeSheet();
+    if(d.id)withUndo('Lançamento alterado.',()=>{const i=F().tx.findIndex(x=>x.id===d.id);if(i>=0){if(d.pid!=null&&P(d.pid))d.nome=P(d.pid).name;F().tx[i]=txClean(d);}});
+    else withUndo('Lançamento registrado.',()=>{addTx(d);});
+  },
+  txBack(){if(sheet.items){sheet={type:'txs',items:sheet.items};renderSheet();}else closeSheet();},
+  txDel(){const id=sheet.d.id;closeSheet();withUndo('Lançamento apagado.',()=>{F().tx=F().tx.filter(x=>x.id!==id);});},
+  cfgSave(){
+    const g=id=>parseMoney($('#'+id).value), v={mens:g('cmens'),diaria:g('cdia'),local:g('cloc'),saldoIni:g('cini')};
+    if(Object.values(v).some(x=>!Number.isFinite(x))){toast('Algum valor está inválido.');return;}
+    withUndo('Valores salvos.',()=>{Object.assign(F().cfg,{mens:Math.max(0,r2(v.mens)),diaria:Math.max(0,r2(v.diaria)),local:Math.max(0,r2(v.local)),saldoIni:r2(v.saldoIni)});});
+  },
+  repShare(){shareOrCopy(repText(cxM()),'Relatório copiado.');},
+  repCsv(){download(`amigos-do-dag-caixa-${cxM()}.csv`,repCsv(cxM()),'text/csv;charset=utf-8');toast('Planilha baixada.');},
+  repPrint(){
+    const ym=cxM(), s=monthSum(ym), ms=mensOf(ym), pg=ms.filter(r=>r.t), ab=ms.filter(r=>!r.t);
+    $('#print').innerHTML=`<h1>Caixa ${esc('Amigos do Dag')}</h1><p>${ymLabel(ym)} · gerado em ${new Date().toLocaleDateString('pt-BR')}</p>${repTable(s)}
+      <h2>Saldo atual do caixa: ${brl(saldoAt())}</h2>
+      <h2>Mensalidades</h2><p><b>Pagaram (${pg.length}):</b> ${pg.map(r=>esc(r.p.name)).join(', ')||'ninguém'}</p><p><b>Em aberto (${ab.length}):</b> ${ab.map(r=>esc(r.p.name)).join(', ')||'ninguém'}</p>
+      <h2>Lançamentos do mês</h2><table class="rep">${monthTx(ym).slice().reverse().map(t=>`<tr><td>${dShort(t.d)} · ${esc(CAT[t.cat].n)} · ${esc(txTitle(t))}${t.ref?' (ref. '+ymShort(t.ref)+')':''}</td><td>${brlS(t.v)}</td></tr>`).join('')}</table>`;
+    window.print();
+  },
+
+  wipe(){
+    if(!confirm('Apagar todos os jogadores, regras e a chegada de hoje? O caixa continua.'))return;
+    withUndo('Tudo apagado (o caixa continua).',()=>{
+      S.fin.tx.forEach(t=>{if(t.pid!=null){t.nome=txName(t);t.pid=null;}});
+      S=Object.assign(blank(),{day:today(),seeded:true,turmaV:TURMA_V,nivelV:NIVEL_V,fin:S.fin,lastBackup:S.lastBackup});
+    });
+  }
+};
+
+/* ================= eventos ================= */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-a]');
+  if(!el||el.disabled)return;
+  const f=A[el.dataset.a];if(f)f(el,e);
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){search=e.target.value;refreshSearch();}
+  if(e.target.id==='qtx')qtx=e.target.value;
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='ra')ruleA=e.target.value;
+  if(e.target.id==='rb')ruleB=e.target.value;
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&sheet){closeSheet();return;}
+  if(e.key!=='Enter')return;
+  if(e.target.id==='fname'){e.preventDefault();A.saveP();}
+  else if(e.target.id==='mvPos'){e.preventDefault();A.mvGo();}
+  else if(e.target.id==='qtx'){e.preventDefault();A.txParse();}
+  else if(e.target.id==='q'&&tab==='chegada'){
+    e.preventDefault();
+    const first=$('#qres [data-a="enqueue"]');
+    if(first)A.enqueue(first);else if(search.trim()&&!S.players.some(match))A.newPlayerQ();
+  }
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&checkDay())render();});
+setInterval(()=>{if(checkDay())render();},60000);
+$('#file').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    let d;try{d=JSON.parse(r.result);}catch(err){toast('Este arquivo não é um backup da pelada.');return;}
+    if(!d||!Array.isArray(d.players)){toast('Este arquivo não é um backup da pelada.');return;}
+    if(S.players.length&&!confirm(`Trocar a lista atual pelos ${d.players.length} jogadores do arquivo?`))return;
+    withUndo('Dados importados.',()=>{S=sanitize(d);S.day=S.day||today();});
+    checkDay();
+  };
+  r.readAsText(f);e.target.value='';
+});
+
+/* ================= início ================= */
+checkDay();
+save();
+render();
+/* instalado como app: guarda os arquivos para abrir sem internet */
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
